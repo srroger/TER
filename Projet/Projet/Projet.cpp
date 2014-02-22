@@ -23,6 +23,8 @@
 
 #include<cv.h>
 #include <iostream>
+#include <time.h>
+
 using namespace std;
 using namespace cv; 
 
@@ -43,158 +45,148 @@ IplImage *image;
 // Position of the object we overlay
 CvPoint objectPos = cvPoint(-1, -1);
 // Color tracked and our tolerance towards it
-int h = 10, s = 245, v = 0, tolerance = 10;
- 
+int hR = 10, sR = 245, vR = 0, tolerance = 20;
+int hG = 60,sG = 160 ,vG = 0 ;
+int hB = 110 ,sB = 210 ,vB = 0;
+
+CvMemStorage* storage = cvCreateMemStorage(0);
+double debut, fin; 
+
+void binarisation(IplImage* image, int *nbPixels);
+void detection(IplImage* mask);
+void Inverse();
+
 /*
  * Transform the image into a two colored image, one color for the color we want to track, another color for the others colors
- * From this image, we get two datas : the number of pixel detected, and the center of gravity of these pixel
  */
-
-//CvPoint binarisation(IplImage* image, int *nbPixels){
-//
-//	
-//    int x, y;
-//    CvScalar pixel; // element valeur d'un pixel
-//    IplImage *hsv, *mask;
-//    IplConvKernel *kernel;
-//    int sommeX = 0, sommeY = 0;
-//    *nbPixels = 0;
-//	
-//
-//
-//
-//    // Create the mask &initialize it to white (no color detected)
-//    mask = cvCreateImage(cvGetSize(image), image->depth, 1); //image->depth = type de donnée de //l'image
-// 
-//    // Create the hsv image
-//    hsv = cvCloneImage(image);
-//    cvCvtColor(image, hsv, CV_BGR2HSV);// transforme image d'entrée d'un espace couleur en une //autre
-// 
-//    // We create the mask
-//    cvInRangeS(hsv, cvScalar(h - tolerance -1, s - tolerance, 0), cvScalar(h + tolerance -1, s + tolerance, 255), mask);
-// 
-//    // Create kernels for the morphological operation --------------- noyau de base (3,3)
-//    kernel = cvCreateStructuringElementEx(5, 5, 2, 2, CV_SHAPE_ELLIPSE);
-// 
-//    // Morphological opening (inverse because we have white pixels on black background)
-//    cvDilate(mask, mask, kernel, 1);
-//    cvErode(mask, mask, kernel, 1);  
-//
-//
-//}
-
-
-
-
-CvPoint binarisationhsv(IplImage* image, int *nbPixels) {
+void binarisation(IplImage* image, int *nbPixels) {
  
     int x, y;
     CvScalar pixel; // element valeur d'un pixel
     IplImage *hsv, *mask;
     IplConvKernel *kernel;
-    int sommeX = 0, sommeY = 0;
-    *nbPixels = 0;
 	
-
-
-
     // Create the mask &initialize it to white (no color detected)
-    mask = cvCreateImage(cvGetSize(image), image->depth, 1); //image->depth = type de donnée de //l'image
- 
+    mask = cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1); //image->depth = type de donnée de //l'image
+
     // Create the hsv image
     hsv = cvCloneImage(image);
     cvCvtColor(image, hsv, CV_BGR2HSV);// transforme image d'entrée d'un espace couleur en une //autre
  
-	// 160-179  0-22 
-
     // We create the mask
-    cvInRangeS(hsv, cvScalar(h - tolerance -1,s-tolerance, 0), cvScalar(h + tolerance -1, s+tolerance, 255), mask);
-	 //cvInRangeS(hsv, cvScalar(160, s, 0), cvScalar(179, s , 255), hsv);
-   //cvThreshold(hsv,mask,160,179,255);
-	 
-	 // Create kernels for the morphological operation --------------- noyau de base (3,3)
+	 for (int x=0;x<hsv->width; x++)
+    {
+        for (int y=0; y<hsv->height; y++)
+        {
+            pixel=cvGet2D(hsv, y, x);
+            if ( ((pixel.val[0]>=hR-tolerance && pixel.val[1]>=sR-tolerance)&&(pixel.val[0]<=hR+tolerance && pixel.val[1]<=sR+tolerance))
+				||((pixel.val[0]>=hB-tolerance && pixel.val[1]>=sB-tolerance)&&(pixel.val[0]<=hB+tolerance && pixel.val[1]<=sB+tolerance))
+				||((pixel.val[0]>=hG-tolerance && pixel.val[1]>=sG-tolerance)&&(pixel.val[0]<=hG+tolerance && pixel.val[1]<=sG+tolerance)) )
+            {  pixel.val[0]=255; cvSet2D(mask, y, x,pixel);
+            }
+            else {
+                pixel.val[0]=0; cvSet2D(mask, y, x,pixel);
+			}
+			
+        }
+    }
+	  // We release the memory of the hsv image
+        cvReleaseImage(&hsv);
+
+
+
+
+	// Create kernels for the morphological operation --------------- noyau de base (3,3)
     kernel = cvCreateStructuringElementEx(5, 5, 2, 2, CV_SHAPE_ELLIPSE);
  
-    // Morphological opening (inverse because we have white pixels on black background)
+    // Morphological opening and closing to remove the holes and the little object
     cvDilate(mask, mask, kernel, 1);
+	cvDilate(mask, mask, kernel, 1);
+	cvDilate(mask, mask, kernel, 1);
     cvErode(mask, mask, kernel, 1);
 	cvErode(mask, mask, kernel, 1);
+	cvErode(mask, mask, kernel, 1);
+	cvErode(mask, mask, kernel, 1);
+	cvErode(mask, mask, kernel, 1);
+	cvErode(mask, mask, kernel, 1);
 	cvDilate(mask, mask, kernel, 1);
-    
- 
-    // We go through the mask to look for the tracked object and get its gravity center
-    for(x = 0; x < mask->width; x++) {
-        for(y = 0; y < mask->height; y++) { 
- 
-            // If its a tracked pixel, count it to the center of gravity's calcul
-            if(((uchar *)(mask->imageData + y*mask->widthStep))[x] == 255) {
+	cvDilate(mask, mask, kernel, 1);
+	cvDilate(mask, mask, kernel, 1);
+	 // We release the memory of kernels
+    cvReleaseStructuringElement(&kernel);
 
-                sommeX += x;
-                sommeY += y;
-                (*nbPixels)++;
-            }
-        }
-    }
- 
+
+	
+
+	debut = clock();
+    detection(mask);
+	fin = clock(); 
+	cout<<"detection       temps : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+
+
     // Show the result of the mask image
     cvShowImage("GeckoGeek Mask", mask);
- 
-    // We release the memory of kernels
-    cvReleaseStructuringElement(&kernel);
- 
+
     // We release the memory of the mask
     cvReleaseImage(&mask);
-    // We release the memory of the hsv image
-        cvReleaseImage(&hsv);
  
-    // If there is no pixel, we return a center outside the image, else we return the center of gravity
-    if(*nbPixels > 0)
-        return cvPoint((int)(sommeX / (*nbPixels)), (int)(sommeY / (*nbPixels)));
-    else
-        return cvPoint(-1, -1);
 }
  
-/*
- * Add a circle on the video that fellow your colored object
- */
-void addObjectToVideo(IplImage* image, CvPoint objectNextPos, int nbPixels) {
- 
-    int objectNextStepX, objectNextStepY;
- 
-    // Calculate circle next position (if there is enough pixels)
-    if (nbPixels > 10) {
- 
-        // Reset position if no pixel were found
-        if (objectPos.x == -1 || objectPos.y == -1) {
-            objectPos.x = objectNextPos.x;
-            objectPos.y = objectNextPos.y;
-        }
- 
-        // Move step by step the object position to the desired position
-        if (abs(objectPos.x - objectNextPos.x) > STEP_MIN) {
-            objectNextStepX = max(STEP_MIN, min(STEP_MAX, abs(objectPos.x - objectNextPos.x) / 2));
-            objectPos.x += (-1) * sign(objectPos.x - objectNextPos.x) * objectNextStepX;
-        }
-        if (abs(objectPos.y - objectNextPos.y) > STEP_MIN) {
-            objectNextStepY = max(STEP_MIN, min(STEP_MAX, abs(objectPos.y - objectNextPos.y) / 2));
-            objectPos.y += (-1) * sign(objectPos.y - objectNextPos.y) * objectNextStepY;
-        }
- 
-    // -1 = object isn't within the camera range
-    } else {
- 
-        objectPos.x = -1;
-        objectPos.y = -1;
- 
+void Inverse(){
+	IplImage* ImgInv= cvCloneImage(image);//cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1);
+	CvScalar pixel1;
+	CvScalar pixel2;
+	int w=image->width;
+	for (int y=0; y<image->height; ++y)
+	{
+		for (int x=0;x<image->width; ++x){
+			pixel1= cvGet2D(image,y,x);
+			for (int k = 0; k < image->nChannels; ++k){
+				pixel2.val[k] = pixel1.val[k];
+			}
+			cvSet2D(ImgInv,y,w-1 - x,pixel2);//cout<<pixel<<endl;
+			//ImgInv->imageData[ y*ImgInv->widthStep+ x*3] = (int)&pixel; 
+		}
+	 }
+	  //cvShowImage("ImgInv", ImgInv);
+	 image=cvCloneImage(ImgInv);
+	 cvReleaseImage(&ImgInv);
+}
+
+
+
+
+void detection(IplImage* mask){
+
+	IplImage* canny = cvCreateImage(cvGetSize(image),IPL_DEPTH_8U,1);
+    IplImage* rgbcanny = cvCreateImage(cvGetSize(image),IPL_DEPTH_8U,3); // 3 et 1 difference
+    cvCanny(mask, canny, 0, 500, 3);   // arguments???
+
+    CvSeq* circles = cvHoughCircles(mask, storage, CV_HOUGH_GRADIENT, 1, 30, 10.0, 5.0,5,30);
+    cvCvtColor(canny, rgbcanny, CV_GRAY2BGR);
+	
+	//cout<<circles->total<<endl;
+    for (size_t i = 0; i < circles->total; i++)
+    {
+         // round the floats to an int
+         float* p = (float*)cvGetSeqElem(circles, i);
+         cv::Point center(cvRound(p[0]), cvRound(p[1]));
+         int radius = cvRound(p[2]);
+
+         // draw the circle center
+         cvCircle(rgbcanny, center, 3, CV_RGB(0,255,0), -1, 8, 0 );
+
+         // draw the circle outline
+         cvCircle(rgbcanny, center, radius+1, CV_RGB(0,0,255), 2, 8, 0 );
+		
+         //cout<<"x: "<<center.x<<" y: "<<center.y<<" r: "<<radius<<endl;
     }
- 
-    // Draw an object (circle) centered on the calculated center of gravity
-    if (nbPixels > 10)
-        cvDrawCircle(image, objectPos, 15, CV_RGB(0, 0, 0), -1);
- 
-    // We show the image on the window
-    cvShowImage("GeckoGeek Color Tracking", image);
- 
+
+	
+	cvNamedWindow("circles", 1);
+    cvShowImage("circles", rgbcanny);
+	cvReleaseImage(&rgbcanny);
+
 }
  
 /*
@@ -226,21 +218,21 @@ void getObjectColor(int event, int x, int y, int flags, void *param = NULL) {
 
 int main( int argc, const char** argv )
 {
-		
+	debut = clock();
+
 	// Touche clavier
     char key=NULL;
     // Image
      IplImage *hsv;
     // Capture vidéo
     CvCapture *capture;
- cout <<"h "<< h <<" s "<<s<<" v "<<v<< endl;
+	
 	// Number of tracked pixels
     int nbPixels;
     // Next position of the object we overlay
     CvPoint objectNextPos;
 
     // Ouvrir le flux vidéo
-    //capture = cvCreateFileCapture("/path/to/your/video/test.avi"); // chemin pour un fichier
     capture = cvCreateCameraCapture(CV_CAP_ANY);
 	
     // Vérifier si l'ouverture du flux est ok
@@ -261,88 +253,44 @@ int main( int argc, const char** argv )
 	// Mouse event to select the tracked color on the original image
     cvSetMouseCallback("GeckoGeek Color Tracking", getObjectColor);
  
-    
+    fin = clock(); 
+		cout<<"initialisation       temps : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
  
     // Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
     while(key != 'q' && key != 'Q') {
  
        // On récupère une image
-       image = cvQueryFrame(capture);
-	
+		debut = clock();
+		image = cvQueryFrame(capture);
+		fin = clock(); 
+		cout<<"capture       temps : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+		debut = clock();
+		Inverse();
+		fin = clock(); 
+		cout<<"inverse       temps : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 	   // If there is no image, we exit the loop
         if(!image)
             continue;
  
-        objectNextPos = binarisationhsv(image, &nbPixels);
-        addObjectToVideo(image, objectNextPos, nbPixels);
- 
+		 // Start timer
+		debut = clock();
+		binarisation(image, &nbPixels);
+		fin = clock(); 
+		cout<<"  temps : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 
-       // On affiche l'image dans une fenêtre
-       //cvShowImage( "GeckoGeek Window", hsv);
- 
+
+		//addObjectToVideo(image, objectNextPos, nbPixels);
+		cvShowImage("GeckoGeek Color Tracking", image);
+
        // On attend 10ms
-       key = cvWaitKey(10);
+       key = cvWaitKey(5);
  
     }
  
     cvReleaseCapture(&capture);
 	cvDestroyWindow("GeckoGeek Color Tracking");
-    cvDestroyWindow("GeckoGeek Mask");
+    cvDestroyWindow("GeckoGeek MaskR");
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	////------------------------------------------------------------------------------------------------------
-	//VideoCapture cap(0); // open the video camera no. 0
 
-	//if (!cap.isOpened())  // if not success, exit program
-	//{
-	//	cout << "ERROR: Cannot open the video file" << endl;
-	//	return -1;
-	//}
-	//namedWindow("MyVideo",CV_WINDOW_AUTOSIZE); //create a window called "MyVideo"
-
-	//double dWidth = cap.get(CV_CAP_PROP_FRAME_WIDTH); //get the width of frames of the video
-	//double dHeight = cap.get(CV_CAP_PROP_FRAME_HEIGHT); //get the height of frames of the video
-
-	//cout << "Frame Size = " << dWidth << "x" << dHeight <<endl;
-	//Size frameSize(static_cast<int>(dWidth), static_cast<int>(dHeight));
-
-	//VideoWriter oVideoWriter ("MaVideo.avi",CV_FOURCC('P','I','M','1'),20, frameSize, true);
-	//	
-	//if( !oVideoWriter.isOpened() ) //if not initialize the VideoWriter successfully, exit the program
-	//{
-	//	cout << "ERROR: Failed to write the video" << endl;
-	//	return -1;
-	//}
-
-	//
- //   while (1)
- //   {
-
- //       Mat frame;
-
-	//	bool bSuccess = cap.read(frame); // read a new frame from video
-
-	//	if (!bSuccess) //if not success, break loop
-	//	{
-	//			cout << "ERROR: Cannot read a frame from video file" << endl;
-	//			break;
-	//	}
-
-	//	oVideoWriter.write(frame); //writer the frame into the file
-	//	imshow("MyVideo", frame); //show the frame in "MyVideo" window
-
-	//	if (waitKey(10) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
-	//	{
-	//		cout << "esc key is pressed by user" << endl;
-	//		break; 
-	//	}
- //   }
-	//return 0;
+//return 0;
 }
