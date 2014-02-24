@@ -97,21 +97,21 @@ void binarisation(IplImage* image, int *nbPixels) {
 
 
 	// Create kernels for the morphological operation --------------- noyau de base (3,3)
-    kernel = cvCreateStructuringElementEx(5, 5, 2, 2, CV_SHAPE_ELLIPSE);
+    kernel = cvCreateStructuringElementEx(10, 10, 4, 4, CV_SHAPE_ELLIPSE);
  
     // Morphological opening and closing to remove the holes and the little object
     cvDilate(mask, mask, kernel, 1);
-	cvDilate(mask, mask, kernel, 1);
-	cvDilate(mask, mask, kernel, 1);
+	//cvDilate(mask, mask, kernel, 1);
+	//cvDilate(mask, mask, kernel, 1);
     cvErode(mask, mask, kernel, 1);
+	//cvErode(mask, mask, kernel, 1);
+	//cvErode(mask, mask, kernel, 1);
+	//cvErode(mask, mask, kernel, 1);
+	//cvErode(mask, mask, kernel, 1);
 	cvErode(mask, mask, kernel, 1);
-	cvErode(mask, mask, kernel, 1);
-	cvErode(mask, mask, kernel, 1);
-	cvErode(mask, mask, kernel, 1);
-	cvErode(mask, mask, kernel, 1);
+	//cvDilate(mask, mask, kernel, 1);
 	cvDilate(mask, mask, kernel, 1);
-	cvDilate(mask, mask, kernel, 1);
-	cvDilate(mask, mask, kernel, 1);
+	//cvDilate(mask, mask, kernel, 1);
 	 // We release the memory of kernels
     cvReleaseStructuringElement(&kernel);
 
@@ -217,7 +217,8 @@ void getObjectColor(int event, int x, int y, int flags, void *param = NULL) {
 
 
 int main( int argc, const char** argv )
-{
+{double d, f;
+	
 	debut = clock();
 
 	// Touche clavier
@@ -258,16 +259,16 @@ int main( int argc, const char** argv )
  
     // Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
     while(key != 'q' && key != 'Q') {
- 
+ d=clock();
        // On récupère une image
 		debut = clock();
 		image = cvQueryFrame(capture);
 		fin = clock(); 
 		cout<<"capture       temps : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-		debut = clock();
+		/*debut = clock();
 		Inverse();
 		fin = clock(); 
-		cout<<"inverse       temps : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+		cout<<"inverse       temps : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; */
 	   // If there is no image, we exit the loop
         if(!image)
             continue;
@@ -276,7 +277,7 @@ int main( int argc, const char** argv )
 		debut = clock();
 		binarisation(image, &nbPixels);
 		fin = clock(); 
-		cout<<"  temps : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+		cout<<"  binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 
 
 		//addObjectToVideo(image, objectNextPos, nbPixels);
@@ -284,7 +285,8 @@ int main( int argc, const char** argv )
 
        // On attend 10ms
        key = cvWaitKey(5);
- 
+	   f=clock();
+		cout<<"  tt : "<<((double)(f-d) / (double) CLOCKS_PER_SEC)<<endl; 
     }
  
     cvReleaseCapture(&capture);
