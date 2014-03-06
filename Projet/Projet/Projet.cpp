@@ -1,26 +1,20 @@
-#include "opencv2/core/core.hpp"
-#include "opencv2/flann/miniflann.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/photo/photo.hpp"
-#include "opencv2/video/video.hpp"
-#include "opencv2/features2d/features2d.hpp"
-#include "opencv2/objdetect/objdetect.hpp"
-#include "opencv2/calib3d/calib3d.hpp"
-#include "opencv2/ml/ml.hpp"
-#include "opencv2/contrib/contrib.hpp"
+//#include "opencv2/core/core.hpp"
+//#include "opencv2/flann/miniflann.hpp"
+//#include "opencv2/imgproc/imgproc.hpp"
+//#include "opencv2/photo/photo.hpp"
+//#include "opencv2/video/video.hpp"
+//#include "opencv2/features2d/features2d.hpp"
+//#include "opencv2/objdetect/objdetect.hpp"
+//#include "opencv2/calib3d/calib3d.hpp"
+//#include "opencv2/ml/ml.hpp"
+//#include "opencv2/contrib/contrib.hpp"
+//#include "opencv2/imgproc/imgproc.hpp"
+//#include "opencv2/highgui/highgui.hpp"
+//#include <stdlib.h>
 
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
-
-
-
-#include <stdlib.h>
 #include <stdio.h>
-
 #include "stdafx.h"
 #include "opencv2/highgui/highgui.hpp"
-//Pensée dans les propriétés du project a prendre les bonne librairie pour le debug et l'autre pour le releases
-
 #include<cv.h>
 #include <iostream>
 #include <time.h>
@@ -29,30 +23,30 @@ using namespace std;
 using namespace cv; 
 
  
-IplImage *image;
+IplImage *image,*hsv;
 
 // Color tracked and our tolerance towards it
 int hR = 10, sR = 245, vR = 0, tolerance = 20;
-int hG = 60,sG = 160 ,vG = 0 ;
+int hG = 60,sG = 120 ,vG = 0 ;
 int hB = 110 ,sB = 210 ,vB = 0;
 
 double debut, fin; 
 
 int Xmax=0,Xmin=1000,Ymax=0,Ymin=1000;
 
-struct Bary{
-	CvPoint P;
-	CvScalar C;
+struct Centre{
+	CvPoint point;
+	CvScalar couleur;
 	int H;
 	int W;
 };
 
 IplImage* binarisation(IplImage* image);
-Bary* detection(IplImage* mask);
-void DrawBary(Bary* TabBary);
+vector<Centre> detection(IplImage* mask);
+void DrawCentre(Centre* TabCentre);
 void Inverse();
 void MaxMin(int x, int y);
-Bary* Tracking(Bary * TabBary);
+vector<Centre> Tracking(vector<Centre> TabCentre);
 
 
 /*
@@ -60,18 +54,13 @@ Bary* Tracking(Bary * TabBary);
  */
 IplImage* binarisation(IplImage* image) {
  
-    int x, y;
     CvScalar pixel; // element valeur d'un pixel
-    IplImage *hsv,*mask;
+    IplImage *mask;
     IplConvKernel *kernel;
 	
     // Create the mask &initialize it to white (no color detected)
     mask = cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1); //image->depth = type de donnée de //l'image
 
-    // Create the hsv image
-    hsv = cvCloneImage(image);
-    cvCvtColor(image, hsv, CV_BGR2HSV);// transforme image d'entrée d'un espace couleur en une //autre
- 
     // We create the mask
 	 for (int x=0;x<hsv->width; x++)
     {
@@ -80,7 +69,7 @@ IplImage* binarisation(IplImage* image) {
             pixel=cvGet2D(hsv, y, x);
             if ( ((pixel.val[0]>=hR-tolerance && pixel.val[1]>=sR-tolerance)&&(pixel.val[0]<=hR+tolerance && pixel.val[1]<=sR+tolerance))
 				||((pixel.val[0]>=hB-tolerance && pixel.val[1]>=sB-tolerance)&&(pixel.val[0]<=hB+tolerance && pixel.val[1]<=sB+tolerance))
-				||((pixel.val[0]>=hG-tolerance && pixel.val[1]>=sG-tolerance)&&(pixel.val[0]<=hG+tolerance && pixel.val[1]<=sG+tolerance)) )
+				||((pixel.val[0]>=hG-tolerance && pixel.val[1]>=sG-1.5*tolerance)&&(pixel.val[0]<=hG+tolerance && pixel.val[1]<=sG+1.5*tolerance)) )
             {  pixel.val[0]=255; cvSet2D(mask, y, x,pixel);
             }
             else {
@@ -89,12 +78,7 @@ IplImage* binarisation(IplImage* image) {
 			
         }
     }
-	  // We release the memory of the hsv image
-        cvReleaseImage(&hsv);
-
-
-
-
+	 
 	// Create kernels for the morphological operation --------------- noyau de base (3,3)
     kernel = cvCreateStructuringElementEx(10, 10, 4, 4, CV_SHAPE_ELLIPSE);
  
@@ -109,29 +93,23 @@ IplImage* binarisation(IplImage* image) {
     // Show the result of the mask image
     cvShowImage("GeckoGeek Mask", mask);
 
-    // We release the memory of the mask
-    //cvReleaseImage(&mask);
 	return mask;
 }
 
 
-Bary* detection(IplImage* mask){
+vector<Centre> detection(IplImage* mask){
+
 	IplImage *bin=cvCloneImage(mask);
-	Bary* TabBary=new Bary[10];
-	Bary b;
+	vector<Centre> TabCentre;
+	Centre b;
 	CvPoint P;
 	CvScalar pixel;
 	int nbPixel=0,Xi,Yi,label=-1;
 	stack<CvPoint> pile;
-			/*
-			(img->imageData + (3 * img->widthStep) + 12) est l'adresse du pixel de coordonnées (12,3), le treizième pixel de la quatrième ligne ;
-			   pixel.val[0]=255;
-			   //Mise à jour du pixel
-			   cvSet2D(img, y, x, pixel);
-			*/
-			//pixel=cvGet2D(bin, y, x);
-	for(int  x=0; x<bin->width && label <=6;++x)
-		for(int y=0;y<bin->height && label <=6;++y){
+	
+	//ICI SOUCIS label ????!!!!!
+	for(int  x=0; x<bin->width && label<6;++x)
+		for(int y=0;y<bin->height && label <6;++y){
 			if( ((uchar *)(bin->imageData + y*bin->widthStep))[x]  == 255  ){ // (uchar *)(mask->imageData + y*mask->widthStep))[x] 
 					P.x=x;
 					P.y=y;
@@ -155,7 +133,7 @@ Bary* detection(IplImage* mask){
 					nbPixel++;
 					MaxMin(xP,yP);
 
-					// we watch the 8 neigboorght
+					// we watch the 8 neighbour
 					if(xP+1<bin->width && cvGet2D(bin, yP, xP+1).val[0] == 255){
 						P.x=xP+1;
 						P.y=yP;
@@ -204,36 +182,39 @@ Bary* detection(IplImage* mask){
 				
 				
 				if(pile.empty()){
-					b.P=cvPoint((int)Xi/nbPixel,(int)Yi/nbPixel);
-					b.C=cvGet2D(image, (int)Yi/nbPixel, (int)Xi/nbPixel);
+					b.point=cvPoint((int)Xi/nbPixel,(int)Yi/nbPixel);
+					b.couleur=cvGet2D(hsv, (int)Yi/nbPixel, (int)Xi/nbPixel);
 
 					b.H=Ymax-Ymin;
 					b.W=Xmax-Xmin;
 
-					TabBary[label]=b;
+					TabCentre.push_back(b);
 				}
 			}//finif
 		}//finfor
 		 cvReleaseImage(&bin);
 		 cvReleaseImage(&mask);
-		return TabBary;
+
+		return TabCentre;
 }
  
 
 
-void DrawBary(Bary* TabBary){ // nb 10
+void DrawCentre(vector<Centre> TabCentre){
 
-	for(int i=0;i<6;i++)
+	for(int i=0;i<TabCentre.size();i++)
 	{
-		//cout<<"i "<<i<<"   "<<TabBary[i].x<<"  "<<TabBary[i].y<<endl;
-		 cvDrawCircle(image, TabBary[i].P, 5, CV_RGB(0, 0, 0), -1);
-		// cout<<"0  "<<TabBary[i].C.val[0]<<"    1  "<< TabBary[i].C.val[1]<<"  2 "<< TabBary[i].C.val[2]<<endl;
+		if( ((TabCentre[i].couleur.val[0]>=hR-tolerance && TabCentre[i].couleur.val[1]>=sR-tolerance)&&(TabCentre[i].couleur.val[0]<=hR+tolerance && TabCentre[i].couleur.val[1]<=sR+tolerance))
+				||((TabCentre[i].couleur.val[0]>=hB-tolerance && TabCentre[i].couleur.val[1]>=sB-tolerance)&&(TabCentre[i].couleur.val[0]<=hB+tolerance && TabCentre[i].couleur.val[1]<=sB+tolerance))
+				||((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) )
+		{
+			cvDrawCircle(image, TabCentre[i].point, 5, CV_RGB(0, 0, 0), -1);
+		}
 	}
-	
 }
 
 
-
+//permet de recuperer les extremum de l'object pour avoir sa hauteur et sa largueur par la suite
 void MaxMin(int x, int y){
 	if(x>Xmax)
 		Xmax=x;
@@ -248,42 +229,43 @@ void MaxMin(int x, int y){
 
 
 
-Bary* Tracking(Bary * TabBary){
+vector<Centre> Tracking(vector<Centre> TabCentre){
 
 	int Xi,Yi,nbPixel;
-	Bary b;
-	Bary* TabNewB=new Bary[6];// pb label
+	Centre b;
+	vector<Centre> TabNewB;
 
 	int Xdebut,Xfin,Ydebut,Yfin;
 
-	for(int i=0;i<6;i++){  // pb label
+	for(int i=0;i<TabCentre.size();i++){
 		Xi=0;
 		Yi=0;
 		nbPixel=0;
 		Xmax=0,Xmin=image->width,Ymax=0,Ymin=image->height;
 		
-		if(TabBary[i].P.x - TabBary[i].W <0)
+		// ou -+2*w  et -+2*h
+
+		if(TabCentre[i].point.x - TabCentre[i].W <0)
 			Xdebut= 0;
-		else Xdebut=TabBary[i].P.x - TabBary[i].W ;
+		else Xdebut=TabCentre[i].point.x - TabCentre[i].W ;
 		
-		if(TabBary[i].P.x + TabBary[i].W >=image->width)
+		if(TabCentre[i].point.x + TabCentre[i].W >=image->width)
 			 Xfin= image->width;
-		else  Xfin=TabBary[i].P.x + TabBary[i].W;
+		else  Xfin=TabCentre[i].point.x + TabCentre[i].W;
 
-		if(TabBary[i].P.y - TabBary[i].H <0)
+		if(TabCentre[i].point.y - TabCentre[i].H <0)
 			 Ydebut=0;
-		else Ydebut=TabBary[i].P.y - TabBary[i].H;
+		else Ydebut=TabCentre[i].point.y - TabCentre[i].H;
 
-		if(TabBary[i].P.y + TabBary[i].H >=image->height)
+		if(TabCentre[i].point.y + TabCentre[i].H >=image->height)
 			 Yfin=image->height;
-		else Yfin=TabBary[i].P.y + TabBary[i].H;
+		else Yfin=TabCentre[i].point.y + TabCentre[i].H;
 
 
 		for(int x= Xdebut; x<Xfin ;++x){
-			for(int y= Ydebut ; y<Yfin ;++y){  // attention BGR
-				if(TabBary[i].C.val[0] <=  cvGet2D(image, y, x).val[0] + tolerance  && TabBary[i].C.val[0] >=  cvGet2D(image, y, x).val[0] - tolerance 
-					&& TabBary[i].C.val[1] <=  cvGet2D(image, y, x).val[1] + tolerance  && TabBary[i].C.val[1] >=  cvGet2D(image, y, x).val[1] - tolerance
-					&& TabBary[i].C.val[2] <=  cvGet2D(image, y, x).val[2] + tolerance  && TabBary[i].C.val[2] >=  cvGet2D(image, y, x).val[2] - tolerance){ // pb de la couleur
+			for(int y= Ydebut ; y<Yfin ;++y){
+				if( TabCentre[i].couleur.val[0] <=  cvGet2D(hsv, y, x).val[0] + tolerance  && TabCentre[i].couleur.val[0] >=  cvGet2D(hsv, y, x).val[0] - tolerance 
+					&& TabCentre[i].couleur.val[1] <=  cvGet2D(hsv, y, x).val[1] + tolerance  && TabCentre[i].couleur.val[1] >=  cvGet2D(hsv, y, x).val[1] - tolerance ){ // pb de la couleur
 					
 					Xi+=x;
 					Yi+=y;
@@ -296,12 +278,13 @@ Bary* Tracking(Bary * TabBary){
 		if(nbPixel!=0){
 			b.H=Xmax-Xmin;
 			b.W=Ymax-Ymin;
-			b.P.x=Xi/nbPixel;
-			b.P.y=Yi/nbPixel;
-			b.C=cvGet2D(image, b.P.y, b.P.x);
-			TabNewB[i]=b;
+			b.point.x=Xi/nbPixel;
+			b.point.y=Yi/nbPixel;
+			b.couleur=cvGet2D(hsv, b.point.y, b.point.x);
+			TabNewB.push_back(b);
 		}
 	}
+
 	return TabNewB;
 }
 
@@ -319,12 +302,12 @@ void getObjectColor(int event, int x, int y, int flags, void *param = NULL) {
  
         // Get the hsv image
         hsv = cvCloneImage(image);
-       // cvCvtColor(image, hsv, CV_BGR2HSV);
+        cvCvtColor(image, hsv, CV_BGR2HSV);
  
         // Get the selected pixel
         pixel = cvGet2D(hsv, y, x); // hsv
-		cout <<"r "<< (int)pixel.val[0] <<" g "<<(int)pixel.val[1]<<" b "<<(int)pixel.val[2]<< endl;
-		//cout <<"h "<< (int)pixel.val[0] <<" s "<<(int)pixel.val[1]<<" v "<<(int)pixel.val[2]<< endl;
+		//cout <<"r "<< (int)pixel.val[0] <<" g "<<(int)pixel.val[1]<<" b "<<(int)pixel.val[2]<< endl;
+		cout <<"h "<< (int)pixel.val[0] <<" s "<<(int)pixel.val[1]<<" v "<<(int)pixel.val[2]<< endl;
         // Release the memory of the hsv image
             cvReleaseImage(&hsv);
  
@@ -332,7 +315,7 @@ void getObjectColor(int event, int x, int y, int flags, void *param = NULL) {
  
 }
  
-void Inverse(){
+/*void Inverse(){
 	IplImage* ImgInv= cvCloneImage(image);//cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1);
 	CvScalar pixel1;
 	CvScalar pixel2;
@@ -345,13 +328,12 @@ void Inverse(){
 				pixel2.val[k] = pixel1.val[k];
 			}
 			cvSet2D(ImgInv,y,w-1 - x,pixel2);//cout<<pixel<<endl;
-			//ImgInv->imageData[ y*ImgInv->widthStep+ x*3] = (int)&pixel; 
 		}
 	 }
 	  //cvShowImage("ImgInv", ImgInv);
 	 image=cvCloneImage(ImgInv);
 	 cvReleaseImage(&ImgInv);
-}
+}*/
 
 
 
@@ -364,16 +346,9 @@ int main( int argc, const char** argv )
 
 	// Touche clavier
     char key=NULL;
-    // Image
-     IplImage *hsv;
     // Capture vidéo
     CvCapture *capture;
 	
-	// Number of tracked pixels
-    int nbPixels;
-    // Next position of the object we overlay
-    CvPoint objectNextPos;
-
     // Ouvrir le flux vidéo
     capture = cvCreateCameraCapture(CV_CAP_ANY);
 	
@@ -395,17 +370,19 @@ int main( int argc, const char** argv )
 	// Mouse event to select the tracked color on the original image
     cvSetMouseCallback("GeckoGeek Color Tracking", getObjectColor);
  
+
+	// initialisation de la capture
 		image = cvQueryFrame(capture);
+		hsv = cvCloneImage(image);
+		cvCvtColor(image, hsv, CV_BGR2HSV);
 		
-	   // If there is no image, we exit the loop
-        
 		debut = clock();
 		IplImage *imageBis=binarisation(image);
 		fin = clock(); 
 		cout<<"  binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-		debut = clock();
-		Bary* tabBary=detection(imageBis);
-		DrawBary(tabBary);
+		//debut = clock();
+		vector<Centre> tabCentre(detection(imageBis));
+		DrawCentre(tabCentre);
 		fin = clock(); 
 		cout<<"  detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
 		
@@ -415,33 +392,57 @@ int main( int argc, const char** argv )
 		 d=clock();
        // On récupère une image
 		image = cvQueryFrame(capture);
-		
+		hsv = cvCloneImage(image);
+		cvCvtColor(image, hsv, CV_BGR2HSV);
+
+		cout<<"                                                    "<<tabCentre.size()<<endl;
+		if(tabCentre.size()<6){
+			debut = clock();
+			imageBis=binarisation(image);
+			fin = clock(); 
+			cout<<" 2   binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+			debut = clock();
+			tabCentre=detection(imageBis);
+			DrawCentre(tabCentre);
+			fin = clock(); 
+			cout<<" 2   detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
+
+		}
+
 	   // If there is no image, we exit the loop
         if(!image)
             continue;
 		
-		Bary* tabnewB=NULL;
-		tabnewB=Tracking(tabBary);
-		DrawBary(tabnewB);
+		vector<Centre> tabnewCentre;
+		debut = clock();
+		tabnewCentre=Tracking(tabCentre);
+		fin = clock(); 
+			cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+		debut = clock();
+		DrawCentre(tabnewCentre);
+		fin = clock(); 
+			cout<<"				   draw : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 		cvShowImage("GeckoGeek Color Tracking", image);
 		
-		for(int i=0;i<6;i++){
-			tabBary[i].C=tabnewB[i].C;
-			tabBary[i].P=tabnewB[i].P;
-			tabBary[i].H=tabnewB[i].H;
-			tabBary[i].W=tabnewB[i].W;
+
+		cvReleaseImage(&hsv);
+
+
+		//copie du nouveau tableau dans tabCentre
+		tabCentre.clear();
+		for(int i=0;i<tabnewCentre.size();i++){
+			tabCentre.push_back(tabnewCentre[i]);
 		}
+
 		
 		// On attend 10ms
        key = cvWaitKey(5);
 	   f=clock();
-		//cout<<"  tt : "<<((double)(f-d) / (double) CLOCKS_PER_SEC)<<endl; 
+		cout<<"  tt : "<<((double)(f-d) / (double) CLOCKS_PER_SEC)<<endl; 
     }
-
     cvReleaseCapture(&capture);
 	cvDestroyWindow("GeckoGeek Color Tracking");
     cvDestroyWindow("GeckoGeek Mask");
-	
-	
-//return 0;
+
+
 }
