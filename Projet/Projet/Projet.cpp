@@ -46,7 +46,7 @@ IplImage *image,*hsv;
 // Color tracked and our tolerance towards it
 int hR = 10, sR = 245, vR = 0, tolerance = 20;
 int hG = 60,sG = 120 ,vG = 0 ;
-int hB = 110 ,sB = 210 ,vB = 0;
+int hB = 110 ,sB = 150 ,vB = 0;
 
 double debut, fin; 
 
@@ -155,21 +155,25 @@ vector<Centre> detection(IplImage* mask){
 					if(xP+1<bin->width && cvGet2D(bin, yP, xP+1).val[0] == 255){
 						P.x=xP+1;
 						P.y=yP;
+						cvSet2D(bin, yP, xP+1,pixel);
 						pile.push(P);
 					}
 					if(xP-1>=0 && cvGet2D(bin, yP, xP-1).val[0] == 255){
 						P.x=xP-1;
 						P.y=yP;
+						cvSet2D(bin, yP, xP-1,pixel);
 						pile.push(P);
 					}
 					if(yP+1<bin->height && cvGet2D(bin, yP+1, xP).val[0] == 255){
 						P.x=xP;
 						P.y=yP+1;
+						cvSet2D(bin, yP+1, xP,pixel);
 						pile.push(P);
 					}
 					if(yP-1>=0 && cvGet2D(bin, yP-1, xP).val[0] == 255){
 						P.x=xP;
 						P.y=yP-1;
+						cvSet2D(bin, yP-1, xP,pixel);
 						pile.push(P);
 					}
 
@@ -177,21 +181,25 @@ vector<Centre> detection(IplImage* mask){
 					if(yP-1>=0 && xP-1>=0 && cvGet2D(bin, yP-1, xP-1).val[0] == 255){
 						P.x=xP-1;
 						P.y=yP-1;
+						cvSet2D(bin, yP-1, xP-1,pixel);
 						pile.push(P);
 					}
 					if(yP+1<bin->height && xP+1<bin->width && cvGet2D(bin, yP+1, xP+1).val[0] == 255){
 						P.x=xP+1;
 						P.y=yP+1;
+						cvSet2D(bin, yP+1, xP+1,pixel);
 						pile.push(P);
 					}
 					if(yP+1<bin->height && xP-1>=0 && cvGet2D(bin, yP+1, xP-1).val[0] == 255){
 						P.x=xP-1;
 						P.y=yP+1;
+						cvSet2D(bin, yP+1, xP-1,pixel);
 						pile.push(P);
 					}
 					if(yP-1>=0 && xP+1<bin->width && cvGet2D(bin, yP-1, xP+1).val[0] == 255){
 						P.x=xP+1;
 						P.y=yP-1;
+						cvSet2D(bin, yP-1, xP+1,pixel);
 						pile.push(P);
 					}
 					
@@ -504,7 +512,7 @@ void idle()
 		cvCvtColor(image, hsv, CV_BGR2HSV);
 
 		cout<<"                                                    "<<tabCentre.size()<<endl;
-		if(tabCentre.size()<6){
+		if(tabCentre.size()<6 && tabCentre.size()!=1){ //!!!!!
 			debut = clock();
 			imageBis=binarisation(image);
 			fin = clock(); 
@@ -566,8 +574,6 @@ int main( int argc, char * argv[])
 
 
 	//debut = clock();
-
-
 	
     // Ouvrir le flux vidéo
     capture = cvCreateCameraCapture(2);
