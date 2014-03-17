@@ -19,8 +19,26 @@
 #include <iostream>
 #include <time.h>
 #include<stack>
+
+
+#include <cmath>
+#include "cstdlib"
+#include "ctime"
+#include "vector"
+#include "windows.h"
+#include "glut.h"
+#include "Cube.h"
+#include "RubixCube.h"
+#include "Viewer.h"
+
+
 using namespace std;
 using namespace cv; 
+
+
+/*--------------------------------------------------------------------------------------*/
+/*-------------------------------OPENCV -----------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
  
 IplImage *image,*hsv;
@@ -28,7 +46,7 @@ IplImage *image,*hsv;
 // Color tracked and our tolerance towards it
 int hR = 10, sR = 245, vR = 0, tolerance = 20;
 int hG = 60,sG = 120 ,vG = 0 ;
-int hB = 110 ,sB = 210 ,vB = 0;
+int hB = 110 ,sB = 150 ,vB = 0;
 
 double debut, fin; 
 
@@ -137,21 +155,25 @@ vector<Centre> detection(IplImage* mask){
 					if(xP+1<bin->width && cvGet2D(bin, yP, xP+1).val[0] == 255){
 						P.x=xP+1;
 						P.y=yP;
+						cvSet2D(bin, yP, xP+1,pixel);
 						pile.push(P);
 					}
 					if(xP-1>=0 && cvGet2D(bin, yP, xP-1).val[0] == 255){
 						P.x=xP-1;
 						P.y=yP;
+						cvSet2D(bin, yP, xP-1,pixel);
 						pile.push(P);
 					}
 					if(yP+1<bin->height && cvGet2D(bin, yP+1, xP).val[0] == 255){
 						P.x=xP;
 						P.y=yP+1;
+						cvSet2D(bin, yP+1, xP,pixel);
 						pile.push(P);
 					}
 					if(yP-1>=0 && cvGet2D(bin, yP-1, xP).val[0] == 255){
 						P.x=xP;
 						P.y=yP-1;
+						cvSet2D(bin, yP-1, xP,pixel);
 						pile.push(P);
 					}
 
@@ -159,21 +181,25 @@ vector<Centre> detection(IplImage* mask){
 					if(yP-1>=0 && xP-1>=0 && cvGet2D(bin, yP-1, xP-1).val[0] == 255){
 						P.x=xP-1;
 						P.y=yP-1;
+						cvSet2D(bin, yP-1, xP-1,pixel);
 						pile.push(P);
 					}
 					if(yP+1<bin->height && xP+1<bin->width && cvGet2D(bin, yP+1, xP+1).val[0] == 255){
 						P.x=xP+1;
 						P.y=yP+1;
+						cvSet2D(bin, yP+1, xP+1,pixel);
 						pile.push(P);
 					}
 					if(yP+1<bin->height && xP-1>=0 && cvGet2D(bin, yP+1, xP-1).val[0] == 255){
 						P.x=xP-1;
 						P.y=yP+1;
+						cvSet2D(bin, yP+1, xP-1,pixel);
 						pile.push(P);
 					}
 					if(yP-1>=0 && xP+1<bin->width && cvGet2D(bin, yP-1, xP+1).val[0] == 255){
 						P.x=xP+1;
 						P.y=yP-1;
+						cvSet2D(bin, yP-1, xP+1,pixel);
 						pile.push(P);
 					}
 					
@@ -339,64 +365,154 @@ void getObjectColor(int event, int x, int y, int flags, void *param = NULL) {
 
 
 
-int main( int argc, const char** argv )
+
+
+/*--------------------------------------------------------------------------------------*/
+/*-------------------------------OPENGL PARTIE ----------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
+
+
+
+
+int resx = 1000, resy = 800;
+
+
+void reshape(int w, int h);
+void init();
+void key(unsigned char key, int x, int y);
+void specialkey(int key, int x, int y);
+void display();
+void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int & b2, int & c0, int & c1, int & c2);
+void idle();
+void processNormalKeys(unsigned char key, int x, int y);
+
+Viewer v(45, 45, 20, 10);
+
+void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int & b2, int & c0, int & c1, int & c2)
 {
-	double d, f;
-	//debut = clock();
+	int temp;
+	if (dir)
+	{
+		temp = a0; a0 = a2; a2 = c2; c2 = c0; c0 = temp;
+		temp = b0; b0 = a1; a1 = b2; b2 = c1; c1 = temp;
+	}
+	else
+	{
+		temp = a0; a0 = c0; c0 = c2; c2 = a2; a2 = temp;
+		temp = b0; b0 = c1; c1 = b2; b2 = a1; a1 = temp;
+	}
+}
+
+
+RubixCube r(2);
+
+//int main(int argc, char * argv[])
+//{
+//	glutInit(&argc, argv);
+//	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+//	glutInitWindowSize(resx, resy);
+//	//glutInitWindowPosition(900,0);
+//	glutCreateWindow("Rubik's Cube");
+//	glutDisplayFunc(display);
+//	glutReshapeFunc(reshape);
+//	glutKeyboardFunc(processNormalKeys);
+//	glutSpecialFunc(specialkey);
+//	init();
+//	glutMainLoop();
+//}
+
+
+void reshape(int w, int h)
+{
+	glViewport(0, 0, w, h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(70, (GLfloat)w / (GLfloat)h, 1, 200);
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void specialkey(int key, int x, int y)
+{
+	switch (key)
+	{
+	case GLUT_KEY_LEFT: case GLUT_KEY_RIGHT:
+	case GLUT_KEY_DOWN:	case GLUT_KEY_UP:
+	case GLUT_KEY_PAGE_UP:case GLUT_KEY_PAGE_DOWN:
+	v.special_keyboard(key); break;
+	}
+}
+void processNormalKeys(unsigned char key, int x, int y) {
+
+	if (key == 27)
+		exit(0);
+}
+void init()
+{
+	
+	glClearColor(0.2, 0.2, 0.2, 1.0);
+	glEnable(GL_SMOOTH);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+void display()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+
+	v.LookAtCentre();
+
+	glTranslatef(0, 0, 0);
+	r.display();
+	
+
+	glFlush();
+	glutSwapBuffers();
+	
+}
+
+
+
+void on_opengl(int argc, char * argv[]) { 
+		//OPENGL INITAILISATION
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitWindowSize(resx, resy);
+	glutCreateWindow("Rubik's Cube");
+	glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
+	glutKeyboardFunc(processNormalKeys);
+	glutSpecialFunc(specialkey);
+	glutIdleFunc(idle);
+	init();
+	
+	//glutMainLoop();
+
+}
+
 
 	// Touche clavier
-    char key=NULL;
+    char keyb=NULL;
     // Capture vidéo
-    CvCapture *capture;
-	
-    // Ouvrir le flux vidéo
-    capture = cvCreateCameraCapture(CV_CAP_ANY);
-	
-    // Vérifier si l'ouverture du flux est ok
-    if (!capture) {
- 
-       printf("Ouverture du flux vidéo impossible !\n");
-       return 1;
- 
-    }
+    static CvCapture *capture;
+	static	double d, f;
+	static	IplImage *imageBis;
+	static	vector<Centre> tabCentre;
+void idle()
+{
+	r.rotation_idle_func();
 
-	
-	// Create the windows
-    cvNamedWindow("GeckoGeek Color Tracking", CV_WINDOW_AUTOSIZE);
-    cvNamedWindow("GeckoGeek Mask", CV_WINDOW_AUTOSIZE);
-    cvMoveWindow("GeckoGeek Color Tracking", 0, 100);
-    cvMoveWindow("GeckoGeek Mask", 650, 100);
 
-	// Mouse event to select the tracked color on the original image
-    cvSetMouseCallback("GeckoGeek Color Tracking", getObjectColor);
- 
-
-	// initialisation de la capture
-		image = cvQueryFrame(capture);
-		hsv = cvCloneImage(image);
-		cvCvtColor(image, hsv, CV_BGR2HSV);
-		
-		debut = clock();
-		IplImage *imageBis=binarisation(image);
-		fin = clock(); 
-		cout<<"  binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-		//debut = clock();
-		vector<Centre> tabCentre(detection(imageBis));
-		DrawCentre(tabCentre);
-		fin = clock(); 
-		cout<<"  detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
-		
-  
-	// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
-    while(key != 'q' && key != 'Q') {
-		 d=clock();
-       // On récupère une image
+		// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
+	//while(keyb != 'q' && keyb != 'Q') {
+			d=clock();
+		// On récupère une image
 		image = cvQueryFrame(capture);
 		hsv = cvCloneImage(image);
 		cvCvtColor(image, hsv, CV_BGR2HSV);
 
 		cout<<"                                                    "<<tabCentre.size()<<endl;
-		if(tabCentre.size()<6){
+		if(tabCentre.size()<6 && tabCentre.size()!=1){ //!!!!!
 			debut = clock();
 			imageBis=binarisation(image);
 			fin = clock(); 
@@ -409,9 +525,9 @@ int main( int argc, const char** argv )
 
 		}
 
-	   // If there is no image, we exit the loop
-        if(!image)
-            continue;
+		// If there is no image, we exit the loop
+		//if(!image)
+		//	continue;
 		
 		vector<Centre> tabnewCentre;
 		debut = clock();
@@ -436,13 +552,80 @@ int main( int argc, const char** argv )
 
 		
 		// On attend 10ms
-       key = cvWaitKey(5);
-	   f=clock();
+		keyb = cvWaitKey(5);
+		f=clock();
 		cout<<"  tt : "<<((double)(f-d) / (double) CLOCKS_PER_SEC)<<endl; 
+
+
+
+	//}
+
+	glutPostRedisplay();
+}
+
+/*--------------------------------------------------------------------------------------*/
+/*-------------------------------MAIN -------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
+
+
+int main( int argc, char * argv[])
+{
+
+
+
+	//debut = clock();
+	
+    // Ouvrir le flux vidéo
+    capture = cvCreateCameraCapture(2);
+	
+    // Vérifier si l'ouverture du flux est ok
+    if (!capture) {
+ 
+       printf("Ouverture du flux vidéo impossible !\n");
+       return 1;
+ 
     }
+
+	
+	// Create the windows
+    cvNamedWindow("GeckoGeek Color Tracking", CV_WINDOW_AUTOSIZE);
+    cvNamedWindow("GeckoGeek Mask", CV_WINDOW_AUTOSIZE);
+    cvMoveWindow("GeckoGeek Color Tracking", 0, 100);
+    cvMoveWindow("GeckoGeek Mask", 650, 100);
+	// Mouse event to select the tracked color on the original image
+    cvSetMouseCallback("GeckoGeek Color Tracking", getObjectColor);
+ 
+
+	// initialisation de la capture
+		image = cvQueryFrame(capture);
+		hsv = cvCloneImage(image);
+		cvCvtColor(image, hsv, CV_BGR2HSV);
+		
+		debut = clock();
+		imageBis=binarisation(image);
+		fin = clock(); 
+		cout<<"  binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+		//debut = clock();
+		tabCentre = vector<Centre>(detection(imageBis));
+		DrawCentre(tabCentre);
+		fin = clock(); 
+		cout<<"  detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
+		
+  
+		
+		//Boucle (dans idle maintenant)
+		on_opengl(argc,argv);
+		//FIN OPENGL INITIALISATION
+		glutMainLoop();
+
+		// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
+	
+
+
     cvReleaseCapture(&capture);
 	cvDestroyWindow("GeckoGeek Color Tracking");
     cvDestroyWindow("GeckoGeek Mask");
 
 
 }
+
