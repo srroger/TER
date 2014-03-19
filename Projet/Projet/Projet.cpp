@@ -30,13 +30,13 @@
 #include "Cube.h"
 #include "RubixCube.h"
 #include "Viewer.h"
-
+#include "Interpreteur.h"
+#include "Centre.h"
 
 using namespace std;
 using namespace cv; 
 
-
-/*--------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------------------*/
 /*-------------------------------OPENCV -----------------------------------------------*/
 /*--------------------------------------------------------------------------------------*/
 
@@ -51,13 +51,13 @@ int hB = 110 ,sB = 200 ,vB = 0;
 double debut, fin; 
 
 int Xmax=0,Xmin=1000,Ymax=0,Ymin=1000;
-
+/**
 struct Centre{
 	CvPoint point;
 	CvScalar couleur;
 	int H;
 	int W;
-};
+};*/
 
 IplImage* binarisation(IplImage* image);
 vector<Centre> detection(IplImage* mask);
@@ -67,7 +67,17 @@ void MaxMin(int x, int y);
 vector<Centre> Tracking(vector<Centre> TabCentre);
 vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
 
+//Objet rendu static pour la liaisons :
+// Touche clavier
+char keyb=NULL;
+// Capture vidéo
+static CvCapture *capture;
+static	double d, f;
+static	IplImage *imageBis;
+static	vector<Centre> tabCentre;
 
+static Interpreteur interprete;
+/*---------------------------------------------
 /*
  * Transform the image into a two colored image, one color for the color we want to track, another color for the others colors
  */
@@ -387,7 +397,8 @@ void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int &
 void idle();
 void processNormalKeys(unsigned char key, int x, int y);
 
-static Viewer v(45, 45, 20, 10);
+//static Viewer v(45, 45, 20, 10);
+static Viewer v(0, 0, 20, 10);
 
 void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int & b2, int & c0, int & c1, int & c2)
 {
@@ -475,10 +486,15 @@ void display()
 
 
 void on_opengl(int argc, char * argv[]) { 
-		//OPENGL INITAILISATION
+
+		
+	resx = cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH);
+	resy = cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT);
+
+		//OPENGL INITAILISATION;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(resx, resy);
+	glutInitWindowSize(resx , resy);
 	glutCreateWindow("Rubik's Cube");
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
@@ -505,13 +521,7 @@ vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 }
 
 
-	// Touche clavier
-    char keyb=NULL;
-    // Capture vidéo
-    static CvCapture *capture;
-	static	double d, f;
-	static	IplImage *imageBis;
-	static	vector<Centre> tabCentre;
+
 void idle()
 {
 	r.rotation_idle_func();
@@ -521,7 +531,7 @@ void idle()
 	//while(keyb != 'q' && keyb != 'Q') {
 			d=clock();
 		// On récupère une image
-		image = cvQueryFrame(capture);
+		image = cvQueryFrame(capture); 
 		hsv = cvCloneImage(image);
 		cvCvtColor(image, hsv, CV_BGR2HSV);
 
@@ -572,8 +582,8 @@ void idle()
 		
 
 		// TEST
-
-
+		//r.display_rotation();
+		//r.moveRX(0.5);
 	//}
 		
 	glutPostRedisplay();
@@ -585,13 +595,8 @@ void idle()
 /*--------------------------------------------------------------------------------------*/
 //TabCentre
 //TabNumCentre
+//Utilisation de la classe interpreteur
 
-//Le point rouge est tout seul, et il se déplace
-void translation()
-{
-
-
-}
 
 /*--------------------------------------------------------------------------------------*/
 /*-------------------------------MAIN -------------------------------------------------*/
@@ -602,7 +607,7 @@ int main( int argc, char * argv[])
 {
 
 
-
+	interprete = Interpreteur(&v,&r);
 	//debut = clock();
 	
     // Ouvrir le flux vidéo
