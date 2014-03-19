@@ -38,7 +38,10 @@ void Cube::display()
 	/*Face 2 XZ-Plane (Bottom)*/
 	set_color(color[1]);
 	glBegin(GL_POLYGON);
-	glVertex3d(-len / 2, -len / 2, -len / 2); glVertex3d(len / 2, -len / 2, -len / 2); glVertex3d(len / 2, -len / 2, len / 2); glVertex3d(-len / 2, -len / 2, len / 2);
+	glVertex3d(-len / 2, -len / 2, -len / 2); 
+	glVertex3d(len / 2, -len / 2, -len / 2); 
+	glVertex3d(len / 2, -len / 2, len / 2); 
+	glVertex3d(-len / 2, -len / 2, len / 2);
 	glEnd();
 	/*Face 3 YZ-Plane (Left)*/
 	set_color(color[2]);

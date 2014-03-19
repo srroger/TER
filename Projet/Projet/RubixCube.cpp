@@ -1,8 +1,13 @@
 #include "stdafx.h"
 #include "RubixCube.h"
-
+/**
+		    ^y
+		    |
+		z<--x
+		*/
 RubixCube::RubixCube(double length)
 {
+	x= 0; y=0 ; z=0;
 	len = length;
 	plane.push_back(2);
 	axis.push_back(0);
@@ -162,10 +167,18 @@ void RubixCube::display()
 	if (!rotating)
 	{
 		double disp = len + 0.2;
-		glPushMatrix();
+		//Profondeur,Hauteur,Lateral
+		/**
+		    ^y
+		    |
+		z<--x
+		*/
+		glPushMatrix(); glTranslatef(x,y,z); glRotatef(rx,1,0,0);glRotatef(ry,0,1,0);glRotatef(rz,0,0,1);
+
 		for (int i = 0; i<27; i++)
 			c[i].display();
 
+		/**
 		if (axis.back() == 0)
 		{
 			if (plane.back() == 0) glTranslated(-disp, 0, 0);
@@ -182,7 +195,7 @@ void RubixCube::display()
 		{
 			if (plane.back() == 0) glTranslated(0, 0, len);
 			else if (plane.back() == 2) glTranslated(0, 0, -len);
-		}
+		}		*/
 		glColor4f(1, 1, 1, 0.3);
 		glPopMatrix();
 	}
@@ -190,3 +203,30 @@ void RubixCube::display()
 		display_rotation();
 }
 
+
+void RubixCube::moveZ(GLfloat val)
+{
+	z = z+val;
+}
+
+void RubixCube::moveY(GLfloat val)
+{
+	y = y + val; 
+}
+void RubixCube::moveX(GLfloat val)
+{
+	x = x + val; 
+}
+
+void RubixCube::moveRX(GLfloat val)
+{
+	rx = rx + val; 
+}
+void RubixCube::moveRY(GLfloat val)
+{
+	ry = ry + val; 
+}
+void RubixCube::moveRZ(GLfloat val)
+{
+	rz = rz + val; 
+}

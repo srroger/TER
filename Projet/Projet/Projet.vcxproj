@@ -89,6 +89,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="Centre.h" />
+    <ClInclude Include="Interpreteur.h" />
     <ClInclude Include="RubixCube.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -96,9 +98,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="Interpreteur.cpp" />
     <ClCompile Include="Projet.cpp" />
     <ClCompile Include="RubixCube.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Centre.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
