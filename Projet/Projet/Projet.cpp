@@ -65,6 +65,7 @@ void DrawCentre(Centre* TabCentre);
 void Inverse();
 void MaxMin(int x, int y);
 vector<Centre> Tracking(vector<Centre> TabCentre);
+vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
 
 
 /*
@@ -488,6 +489,19 @@ void on_opengl(int argc, char * argv[]) {
 	
 	//glutMainLoop();
 
+}
+
+
+vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre){
+	vector<CvPoint> DirDeplacement;
+	for(int i=0;i<tabCentre.size();i++){
+		CvPoint pt;
+		pt.x= tabCentre.at(i).point.x - tabNewCentre.at(i).point.x;
+		pt.y= tabCentre.at(i).point.y - tabNewCentre.at(i).point.y;
+		DirDeplacement.push_back(pt);
+	}
+
+	return DirDeplacement;
 }
 
 
