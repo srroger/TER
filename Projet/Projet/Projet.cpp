@@ -508,17 +508,6 @@ void on_opengl(int argc, char * argv[]) {
 }
 
 
-vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre){
-	vector<CvPoint> DirDeplacement;
-	for(int i=0;i<tabCentre.size();i++){
-		CvPoint pt;
-		pt.x= tabCentre.at(i).point.x - tabNewCentre.at(i).point.x;
-		pt.y= tabCentre.at(i).point.y - tabNewCentre.at(i).point.y;
-		DirDeplacement.push_back(pt);
-	}
-
-	return DirDeplacement;
-}
 
 
 
@@ -567,6 +556,13 @@ void idle()
 
 		cvReleaseImage(&hsv);
 
+		// INTERPRETATION
+		//r.display_rotation();
+		//r.moveRX(0.5);
+		interprete.launch(tabCentre,tabnewCentre);
+
+
+		//FIN INTERPRETATION
 
 		//copie du nouveau tableau dans tabCentre
 		tabCentre.clear();
@@ -581,9 +577,7 @@ void idle()
 		cout<<"  tt : "<<((double)(f-d) / (double) CLOCKS_PER_SEC)<<endl; 
 		
 
-		// TEST
-		//r.display_rotation();
-		//r.moveRX(0.5);
+
 	//}
 		
 	glutPostRedisplay();
