@@ -18,6 +18,8 @@ public:
 	void special_keyboard(int key);
 	void reset_view(double alpha, double beta, double radius, double min_radius);
 	void LookAtCentre();
+	void Rotation(int sens);
+
 };
 
 #endif

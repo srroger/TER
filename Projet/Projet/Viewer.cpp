@@ -26,18 +26,38 @@ void Viewer::set_position()
 	pos[1] = v_radius * sin(degtorad * v_beta);
 	pos[2] = (v_radius * cos(degtorad * v_beta)) * sin(degtorad * v_alpha);
 }
+
+//Rotation()
+#define GAUCHE 0 
+#define DROITE 1 
+#define HAUT 2 
+#define BAS 3 
+
+//Les rotation totale avec OpenGL se font en degree et non en radian
+void Viewer::Rotation(int sens)
+{
+	switch(sens)
+	{
+	case GAUCHE : 
+		v_alpha += 2; set_position(); glutPostRedisplay(); break;
+	case DROITE : 
+		v_alpha -= 2; set_position(); glutPostRedisplay(); break;
+	case HAUT : 
+		v_beta += 2; set_position(); glutPostRedisplay(); break;
+	case BAS : 
+		v_beta -= 2; set_position(); glutPostRedisplay(); break;
+	}
+
+}
+
 void Viewer::special_keyboard(int key)
 {
 	switch (key)
 	{
-	case GLUT_KEY_LEFT:
-		v_alpha += 2; set_position(); glutPostRedisplay(); break;
-	case GLUT_KEY_RIGHT:
-		v_alpha -= 2; set_position(); glutPostRedisplay(); break;
-	case GLUT_KEY_DOWN:
-		v_beta -= 2; set_position(); glutPostRedisplay(); break;
-	case GLUT_KEY_UP:
-		v_beta += 2; set_position(); glutPostRedisplay(); break;
+	case GLUT_KEY_LEFT: Rotation(GAUCHE); break;
+	case GLUT_KEY_RIGHT: Rotation(DROITE); break;
+	case GLUT_KEY_DOWN: Rotation(BAS); break;
+	case GLUT_KEY_UP: Rotation(HAUT); break;
 	case GLUT_KEY_PAGE_UP:
 		v_radius += 1; set_position(); glutPostRedisplay(); break;
 	case GLUT_KEY_PAGE_DOWN:
