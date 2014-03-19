@@ -46,7 +46,7 @@ IplImage *image,*hsv;
 // Color tracked and our tolerance towards it
 int hR = 10, sR = 245, vR = 0, tolerance = 20;
 int hG = 60,sG = 120 ,vG = 0 ;
-int hB = 110 ,sB = 150 ,vB = 0;
+int hB = 110 ,sB = 200 ,vB = 0;
 
 double debut, fin; 
 
@@ -387,7 +387,7 @@ void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int &
 void idle();
 void processNormalKeys(unsigned char key, int x, int y);
 
-Viewer v(45, 45, 20, 10);
+static Viewer v(45, 45, 20, 10);
 
 void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int & b2, int & c0, int & c1, int & c2)
 {
@@ -569,12 +569,28 @@ void idle()
 		keyb = cvWaitKey(5);
 		f=clock();
 		cout<<"  tt : "<<((double)(f-d) / (double) CLOCKS_PER_SEC)<<endl; 
+		
 
+		// TEST
 
 
 	//}
-
+		
 	glutPostRedisplay();
+}
+
+
+/*--------------------------------------------------------------------------------------*/
+/*-------------------------------LIAISON -------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
+//TabCentre
+//TabNumCentre
+
+//Le point rouge est tout seul, et il se déplace
+void translation()
+{
+
+
 }
 
 /*--------------------------------------------------------------------------------------*/
