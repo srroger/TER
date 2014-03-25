@@ -20,6 +20,7 @@ public:
 	#define ROUGE 0
 	#define VERT 1
 	#define BLEU 2
+	#define RIEN 3
 
 	int H;
 	int W;

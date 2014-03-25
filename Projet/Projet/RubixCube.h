@@ -28,8 +28,8 @@ public:
 	RubixCube(double length);
 	void set_centre();
 	void display();
-	void display_rotation();
-	void rotation_idle_func();
+//	void display_rotation();
+//	void rotation_idle_func();
 	void keyboard(unsigned char key);
 	friend void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int & b2, int & c0, int & c1, int & c2);
 	

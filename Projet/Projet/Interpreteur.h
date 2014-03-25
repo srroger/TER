@@ -10,7 +10,6 @@
 #include "Viewer.h"
 #include "Centre.h"
 
-#include "vector"
 #include "opencv2/highgui/highgui.hpp"
 #include<cv.h>
 
@@ -31,6 +30,7 @@ struct PointGL{
 };
 struct PointPolaire{
 	float r,teta;
+	int couleurFacile;
 };
 
 class Interpreteur
@@ -64,8 +64,9 @@ private:
 	vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
 	void translation();
 	void rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
-	void rotationFace(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
+	bool rotationFace(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
 	bool rotationCote(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
+	bool rotationBas(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
 };
 
 #endif

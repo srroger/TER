@@ -50,7 +50,7 @@ RubixCube::RubixCube(double length)
 	set_centre();
 }
 
-
+/**
 void RubixCube::display_rotation()
 {
 	int i, j, k;
@@ -143,7 +143,7 @@ void RubixCube::rotation_idle_func()
 			theta += +0.5;
 		    glutPostRedisplay();
 	}
-}
+}*/
 void RubixCube::set_centre()
 {
 	int i, j, k;
@@ -178,8 +178,6 @@ void RubixCube::set_centre()
 }
 void RubixCube::display()
 {
-	if (!rotating)
-	{
 		double disp = len + 0.2;
 		//Profondeur,Hauteur,Lateral
 		/**
@@ -217,9 +215,6 @@ void RubixCube::display()
 		}		*/
 		glColor4f(1, 1, 1, 0.3);
 		glPopMatrix();
-	}
-	else
-		display_rotation();
 }
 
 

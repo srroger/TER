@@ -538,7 +538,7 @@ void on_opengl(int argc, char * argv[]) {
 int redo = 0; int numberBeforeRedo = 40; // Ces variables permette de ne pas refaire de binarisation enchainer
 void idle()
 {
-	r.rotation_idle_func();
+//	r.rotation_idle_func();
 
 
 		// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
@@ -570,7 +570,7 @@ void idle()
 			
 			redo++;
 			//cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
-			if( (tabCentre.size()<6 && tabCentre.size()!=1 && tabCentre.size()!=3 && redo >= numberBeforeRedo) ){ //!!!!!
+			if( (tabCentre.size()<6 && tabCentre.size()!=1 && tabCentre.size()!=2 && redo >= numberBeforeRedo) ){ //!!!!!
 			//if( tabCentre.size()<6 && tabCentre.size()!=1){ //!!!!!
 				debut = clock();
 				imageBis=binarisation(image);
