@@ -46,7 +46,10 @@ public:
 	PointGL C, C2;
 	PointGL ptCar[6];// R,V,B,R2,V2,B2;
 	PointPolaire ptPol[6]; //Rp,Vp,Bp,R2p,V2p,B2p;
-	bool testeur[6];int RefreshEvery; int cptRefreshFrame; //La distance en frame pour le calcul de la rotation
+	//bool testeur[6];int RefreshEvery; int cptRefreshFrame; //La distance en frame pour le calcul de la rotation
+	int toleranceIdle; int RefreshEvery; int cptRefreshFrame; //Variable utile pour la reinitialisation, si il y a eu aucun mouvement avec 3 doigts pendant RefreEvery frame, on réinitilise le cube
+
+
 	float sensiRot; int cranRotation;
 
 	float seuilCote; // Si les delta sont inferieur a ce seuil, cela signifie qu'on fait une rotation sur le cote
@@ -63,6 +66,7 @@ public:
 private:
 	vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
 	void translation();
+	bool reinitialisation(vector<Centre> tabCentre, vector<Centre> tabNewCentre); //Reinitialise le cube si trois marqueur n'ont pas bougé pendant un laps de frame RefreshEvery
 	void rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
 	bool rotationFace(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
 	bool rotationCote(vector<Centre> tabCentre, vector<Centre> tabNewCentre);

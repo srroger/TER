@@ -27,7 +27,8 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 	}
 
 	cptRefreshFrame =0;
-	RefreshEvery = 3;
+	RefreshEvery = 10;
+	toleranceIdle = 20;
 
 	sensiRot =0.1;
 	cranRotation = 2;
@@ -41,6 +42,69 @@ Interpreteur::~Interpreteur(void)
 }
 
 
+bool Interpreteur::reinitialisation(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
+{
+
+	bool good = true;
+	bool couleur[3];bool couleurNew[3];
+	for(int j = 0 ; j < 3 ; j++)
+	{
+		couleur[j]=false;
+		couleurNew[j]=false;
+	}
+
+	for(int i = 0 ; i < tabCentre.size() ; i++)
+	{
+		switch (tabCentre[i].couleurFacile)
+		{	
+		case ROUGE : ptCar[0].couleurFacile = tabCentre[i].couleurFacile ; ptCar[0].x = tabCentre[i].point.x; ptCar[0].y = tabCentre[i].point.y; couleur[tabCentre[i].couleurFacile]=true; break;
+		case VERT :  ptCar[1].couleurFacile = tabCentre[i].couleurFacile ; ptCar[1].x = tabCentre[i].point.x; ptCar[1].y = tabCentre[i].point.y; couleur[tabCentre[i].couleurFacile]=true;break;
+		case BLEU :  ptCar[2].couleurFacile = tabCentre[i].couleurFacile ; ptCar[2].x = tabCentre[i].point.x; ptCar[2].y = tabCentre[i].point.y; couleur[tabCentre[i].couleurFacile]=true;break;
+		}
+
+		switch (tabNewCentre[i].couleurFacile)
+		{	
+		case ROUGE : ptCar[0 +3].couleurFacile = tabNewCentre[i].couleurFacile ; ptCar[0 + 3].x = tabNewCentre[i].point.x; ptCar[0 + 3].y = tabNewCentre[i].point.y; couleurNew[tabNewCentre[i].couleurFacile]=true; break;
+		case VERT :  ptCar[1+3].couleurFacile = tabNewCentre[i].couleurFacile ; ptCar[1+3].x = tabNewCentre[i].point.x; ptCar[1+3].y = tabNewCentre[i].point.y; couleurNew[tabNewCentre[i].couleurFacile]=true;break;
+		case BLEU :  ptCar[2+3].couleurFacile = tabNewCentre[i].couleurFacile ; ptCar[2+3].x = tabNewCentre[i].point.x; ptCar[2+3].y = tabNewCentre[i].point.y; couleurNew[tabNewCentre[i].couleurFacile]=true;break;
+		}
+
+	}
+
+	int i = 0;
+	while(i < 3 && couleur[i]==couleurNew[i])
+		i++;
+	
+	if(i < 3)
+	{
+		if(cptRefreshFrame <= RefreshEvery/3) //On verifie qu'il ne s'agit d'une perte momentanée d'un point
+		{good = false; cptRefreshFrame = 0; return good;}
+	}
+	else
+	{
+		//Verifie que les points non pas trop bouge
+		for(int j = 0 ; j < 3 ; j++)
+		{
+			if(!( abs(ptCar[j].x - ptCar[j].x) < toleranceIdle && abs(ptCar[j].y - ptCar[j].y) < toleranceIdle) )
+			{
+				if(cptRefreshFrame <= RefreshEvery/3) //On verifie qu'il ne s'agit d'une perte momentanée d'un point
+				{good = false; cptRefreshFrame = 0; return good;}
+			}
+		}
+	}
+
+	if(good)
+		cptRefreshFrame++;
+
+	cout << "cptRefresh : " <<cptRefreshFrame <<endl;
+	if(cptRefreshFrame >= RefreshEvery)
+	{
+		cout <<"Reinitialise la scene" <<endl;
+		r->reinit();
+		cptRefreshFrame = 0;
+	}
+	return good;
+}
 
 //Le point rouge est tout seul, et il se déplace
 void Interpreteur::translation(void)
@@ -177,9 +241,10 @@ void Interpreteur::launch(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 		mode = tabNewCentre.size();
 		switch (mode)
 		{
-		case 0: {break; }//TODO
+		case 0: {break; }
 		case 1 :{ if(tabCentre[0].couleurFacile == ROUGE ) translation(); break;} // N effectue la translation que si c'est un marqueur rouge
-		case 2 : {rotation(tabCentre,tabNewCentre); }//TODO
+		case 2 : {rotation(tabCentre,tabNewCentre); break;}
+		case 3 : {reinitialisation(tabCentre,tabNewCentre); break;}
 			default :{ break;}
 		}
 
@@ -203,6 +268,16 @@ vector<CvPoint> Interpreteur::direction(vector<Centre> tabCentre, vector<Centre>
 	
 	return DirDeplacement;
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
