@@ -43,6 +43,7 @@ public:
 	int hG ,sG;
 	int hB,sB;
 	bool faireRotation;
+	int cptRotation; int maxRotation; //=90°
 
 	PointGL C, C2;
 	PointGL ptCar[6];// R,V,B,R2,V2,B2;
@@ -66,7 +67,7 @@ public:
 
 private:
 	vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
-	void translation();
+	void translation(int indiceRouge);
 	bool reinitialisation(vector<Centre> tabCentre, vector<Centre> tabNewCentre); //Reinitialise le cube si trois marqueur n'ont pas bougé pendant un laps de frame RefreshEvery
 	void rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
 	bool rotationFace(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
