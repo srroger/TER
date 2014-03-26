@@ -16,7 +16,7 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 	sG = sg;
 	hB = hb;
 	sB = sb;
-
+	faireRotation=true;
 
 	PointGL vide; vide.couleurFacile = RIEN;
 	PointPolaire videP; videP.couleurFacile = RIEN;
@@ -31,7 +31,7 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 	toleranceIdle = 20;
 
 	sensiRot =0.1;
-	cranRotation = 2;
+	cranRotation = 90;
 
 	seuilCote = 15;
 }
@@ -124,7 +124,7 @@ void Interpreteur::translation(void)
 
 }
 
-//Les rotations se font à l'aide du langage des signes sur 2 doigts
+//Les rotations se font à l'aide du langage des signes sur 1 doigts
 void Interpreteur::rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 {
 	//Cherche le centre entre les 3 points
@@ -173,63 +173,41 @@ void Interpreteur::rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentr
 	// Bleu Rouge -> Rotation Face
 	// Bleu Vert -> Rotation lateral
 	// Vert Rouge -> Rotation bas
-	if(couleur[BLEU] && couleurNew[BLEU] && couleur[ROUGE] && couleurNew[ROUGE])
+	/*if(couleur[BLEU] && couleurNew[BLEU] && couleur[ROUGE] && couleurNew[ROUGE])
 		rotationFace(tabCentre,tabNewCentre);
 	if(couleur[BLEU] && couleurNew[BLEU] && couleur[VERT] && couleurNew[VERT])
 		rotationCote(tabCentre,tabNewCentre);
 	if( couleur[VERT] && couleurNew[VERT] && couleur[ROUGE] && couleurNew[ROUGE])
+		rotationBas(tabCentre,tabNewCentre);*/
+
+
+	if(couleur[ROUGE] && couleurNew[ROUGE])
+		rotationFace(tabCentre,tabNewCentre);
+	if(couleur[BLEU] && couleurNew[BLEU])
+		rotationCote(tabCentre,tabNewCentre);
+	if( couleur[VERT] && couleurNew[VERT])
 		rotationBas(tabCentre,tabNewCentre);
 
+	faireRotation=false; // on a fait une rotation
 }
 
 
-//VERT et ROUGE
+//VERT
 bool Interpreteur::rotationBas(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 {
-	//Si le delta entre les deux .x est faible, alors les points sont alignés
-	float delta = ptCar[VERT].x - ptCar[ROUGE].x; cout << "d" << delta << " ptVR: "<<ptCar[VERT].y << ";" << ptCar[ROUGE].y << endl;
-	if(abs(delta) < seuilCote)
-	{
-		//Verifie que c'est bien le bon signe, donc Rouge en haut et Vert
-		if (ptCar[VERT].y > ptCar[ROUGE].y)
-		{
-			r->moveRY(cranRotation); return true;
-		}
-	}
-	return false;
+	r->moveRY(cranRotation); 
 }
 
-//BLEU ET ROUGE
+//ROUGE
 bool Interpreteur::rotationFace(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 {	
-	//Si le delta entre les deux .x est faible, alors les points sont alignés
-	float delta = ptCar[BLEU].x - ptCar[ROUGE].x; cout << "d" << delta << " ptBR: "<<ptCar[BLEU].y << ";" << ptCar[ROUGE].y << endl;
-	if(abs(delta) < seuilCote)
-	{
-		//Verifie que c'est bien le bon signe, donc Rouge en haut et Vert
-		if (ptCar[BLEU].y < ptCar[ROUGE].y)
-		{
-			r->moveRX(cranRotation); return true;
-		}
-	}
-	return false;
+	r->moveRX(cranRotation); 
 }
 
-//BLEU ET VERT
+//BLEU
 bool Interpreteur::rotationCote(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 {
-	//Si le delta entre les deux .x est faible, alors les points sont alignés
-	float delta = ptCar[BLEU].x - ptCar[VERT].x;cout << "d" << delta << " ptBR: "<<ptCar[BLEU].y << ";" << ptCar[VERT].y << endl;
-
-	if(abs(delta) < seuilCote)
-	{
-		//Verifie que c'est bien le bon signe, donc Rouge en haut et Vert
-		if (ptCar[BLEU].y < ptCar[VERT].y)
-		{
-			r->moveRZ(cranRotation); return true;
-		}
-	}
-	return false;
+	r->moveRZ(cranRotation); return true;
 }
 
 void Interpreteur::launch(vector<Centre> tabCentre, vector<Centre> tabNewCentre){
@@ -241,10 +219,13 @@ void Interpreteur::launch(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 		mode = tabNewCentre.size();
 		switch (mode)
 		{
-		case 0: {break; }
-		case 1 :{ if(tabCentre[0].couleurFacile == ROUGE ) translation(); break;} // N effectue la translation que si c'est un marqueur rouge
-		case 2 : {rotation(tabCentre,tabNewCentre); break;}
-		case 3 : {reinitialisation(tabCentre,tabNewCentre); break;}
+		case 0: {faireRotation=true;break;}
+		case 1: {if(faireRotation) rotation(tabCentre,tabNewCentre); break;}
+		case 2: {if(tabCentre[0].couleurFacile == ROUGE || tabCentre[1].couleurFacile == ROUGE ) translation(); break;}
+		case 3:	{if(tabCentre[0].couleurFacile == ROUGE || tabCentre[1].couleurFacile == ROUGE || tabCentre[2].couleurFacile == ROUGE ) translation(); break;}
+		//case 1 :{ if(tabCentre[0].couleurFacile == ROUGE ) translation(); break;} // N effectue la translation que si c'est un marqueur rouge
+		//case 2 : {rotation(tabCentre,tabNewCentre); break;}
+		//case 3 : {reinitialisation(tabCentre,tabNewCentre); break;}
 			default :{ break;}
 		}
 

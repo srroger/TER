@@ -42,6 +42,7 @@ public:
 	int hR, sR, tolerance;
 	int hG ,sG;
 	int hB,sB;
+	bool faireRotation;
 
 	PointGL C, C2;
 	PointGL ptCar[6];// R,V,B,R2,V2,B2;
