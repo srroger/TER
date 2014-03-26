@@ -36,7 +36,7 @@ RubixCube::RubixCube(double length)
 	{
 		c[i].color[2] = 3; c[i + 18].color[5] = 6;
 	}
-	for (i = 0; i<27; i += 9)
+	for (i = 0; i<27; i += 9) // color=face d'un cube
 	{
 		c[i + 5].color[0] = 1; c[i + 8].color[0] = 1; c[i + 2].color[0] = 1;
 		c[i + 2].color[1] = 2; c[i + 1].color[1] = 2; c[i].color[1] = 2;
