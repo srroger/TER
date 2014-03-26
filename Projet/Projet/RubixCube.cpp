@@ -12,7 +12,7 @@
 #endif
 #define DEG_TO_RAD (M_PI/180.0) //multiplier cette valeur par le degree
 #define RAD_TO_DEG (180.0/M_PI)
-
+///c'est genial!!!
 RubixCube::RubixCube(double length)
 {
 	x= 0; y=0 ; z=0;
