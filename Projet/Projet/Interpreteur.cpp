@@ -16,7 +16,7 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 	sG = sg;
 	hB = hb;
 	sB = sb;
-	faireRotation=true;
+	faireRotation=true;cptRotation = 0; maxRotation = 90 ;
 
 	PointGL vide; vide.couleurFacile = RIEN;
 	PointPolaire videP; videP.couleurFacile = RIEN;
@@ -31,7 +31,7 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 	toleranceIdle = 20;
 
 	sensiRot =0.1;
-	cranRotation = 90;
+	cranRotation = 3;
 
 	seuilCote = 15;
 }
@@ -107,15 +107,15 @@ bool Interpreteur::reinitialisation(vector<Centre> tabCentre, vector<Centre> tab
 }
 
 //Le point rouge est tout seul, et il se déplace
-void Interpreteur::translation(void)
+void Interpreteur::translation(int indiceRouge)
 {
 	//La size etant de 1 (normalement)
 
 	//Changement de repère car dans opengl et openCV on a pas le meme repère x,y,z
 	PointGL vect; 
 	vect.x = 0;
-	vect.y = -dir[0].y;
-	vect.z = -dir[0].x;
+	vect.y = -dir[indiceRouge].y;
+	vect.z = -dir[indiceRouge].x;
 	
 	float seuille = 1;
 	if(abs(vect.x) > seuille) r->moveX(vect.x*0.2);
@@ -188,41 +188,50 @@ void Interpreteur::rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentr
 	if( couleur[VERT] && couleurNew[VERT])
 		rotationBas(tabCentre,tabNewCentre);
 
-	faireRotation=false; // on a fait une rotation
 }
 
 
 //VERT
 bool Interpreteur::rotationBas(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 {
-	r->moveRY(cranRotation); 
+	r->moveRY(cranRotation); cptRotation++;
+
+	if(cptRotation*cranRotation >= maxRotation)
+		faireRotation=false; // on a fait une rotation 
+	return true;
 }
 
 //ROUGE
 bool Interpreteur::rotationFace(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 {	
-	r->moveRX(cranRotation); 
+	r->moveRX(cranRotation); cptRotation++;
+	if(cptRotation*cranRotation >= maxRotation)
+		faireRotation=false; // on a fait une rotation 
+	return true;
 }
 
 //BLEU
 bool Interpreteur::rotationCote(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 {
-	r->moveRZ(cranRotation); return true;
+	r->moveRZ(cranRotation); cptRotation++;
+	if(cptRotation*cranRotation >= maxRotation)
+		faireRotation=false; // on a fait une rotation 
+	return true;
 }
 
 void Interpreteur::launch(vector<Centre> tabCentre, vector<Centre> tabNewCentre){
 
-	if(tabNewCentre.size() != 0 && tabCentre.size() != 0 && tabNewCentre.size() == tabCentre.size())
+	if( tabNewCentre.size() == tabCentre.size())
 	{
 		
 		dir = direction(tabCentre,tabNewCentre);
 		mode = tabNewCentre.size();
 		switch (mode)
 		{
-		case 0: {faireRotation=true;break;}
-		case 1: {if(faireRotation) rotation(tabCentre,tabNewCentre); break;}
-		case 2: {if(tabCentre[0].couleurFacile == ROUGE || tabCentre[1].couleurFacile == ROUGE ) translation(); break;}
-		case 3:	{if(tabCentre[0].couleurFacile == ROUGE || tabCentre[1].couleurFacile == ROUGE || tabCentre[2].couleurFacile == ROUGE ) translation(); break;}
+		case 0: {faireRotation=true; cptRotation = 0 ; break;}
+		case 1: {if(faireRotation){ rotation(tabCentre,tabNewCentre);} break;}
+		case 2: {if(tabCentre[0].couleurFacile == ROUGE ) translation(0); else if(tabCentre[1].couleurFacile == ROUGE) translation(1); break;}
+		case 3:	{if(tabCentre[0].couleurFacile == ROUGE ) translation(0); else if(tabCentre[1].couleurFacile == ROUGE) translation(1); else if (tabCentre[2].couleurFacile == ROUGE ) translation(2);  break;}
 		//case 1 :{ if(tabCentre[0].couleurFacile == ROUGE ) translation(); break;} // N effectue la translation que si c'est un marqueur rouge
 		//case 2 : {rotation(tabCentre,tabNewCentre); break;}
 		//case 3 : {reinitialisation(tabCentre,tabNewCentre); break;}
