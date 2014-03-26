@@ -443,7 +443,7 @@ void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int &
 
 
 RubixCube r(2);
-static Viewer v(0, 0, 40, 10,&r);
+static Viewer v(0, 30, 40, 10,&r);
 //int main(int argc, char * argv[])
 //{
 //	glutInit(&argc, argv);
@@ -570,7 +570,7 @@ void idle()
 			
 			redo++;
 			//cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
-			if( (tabCentre.size()<6 && tabCentre.size()!=1 && tabCentre.size()!=2 && redo >= numberBeforeRedo) ){ //!!!!!
+			if( (tabCentre.size()<6 && tabCentre.size()!=1 && tabCentre.size()!=2  && tabCentre.size()!=3 && redo >= numberBeforeRedo) ){ //!!!!!
 			//if( tabCentre.size()<6 && tabCentre.size()!=1){ //!!!!!
 				debut = clock();
 				imageBis=binarisation(image);

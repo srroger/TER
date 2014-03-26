@@ -16,7 +16,7 @@
 RubixCube::RubixCube(double length)
 {
 	x= 0; y=0 ; z=0;
-	rx = 0; ry = 0; rz = 0;
+	rx = 0; ry = 30; rz = 0;
 	
 	AxisX[0] = 1; AxisX[1] = 0; AxisX[2] = 0;
 	AxisY[0] = 0; AxisY[1] = 1; AxisY[2] = 0;
