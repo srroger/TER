@@ -12,6 +12,12 @@ class RubixCube
 {
 	GLfloat x,y,z; // Ces valeur permettent de connaitre sa position par au centre de l'image.
 	GLfloat rx,ry,rz; // L'angle de rotation.
+	
+	float AxisX[3];
+	float AxisY[3];
+	float AxisZ[3];
+
+
 	Cube c[27];
 	double len, theta;
 	int dir, cubepos[3][3][3];
@@ -22,8 +28,8 @@ public:
 	RubixCube(double length);
 	void set_centre();
 	void display();
-	void display_rotation();
-	void rotation_idle_func();
+//	void display_rotation();
+//	void rotation_idle_func();
 	void keyboard(unsigned char key);
 	friend void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int & b2, int & c0, int & c1, int & c2);
 	
@@ -34,6 +40,9 @@ public:
 	void moveRX(GLfloat val);
 	void moveRY(GLfloat val);
 	void moveRZ(GLfloat val);
+	void reinit();
+
+	void recalcAxis();
 };
 
 #endif

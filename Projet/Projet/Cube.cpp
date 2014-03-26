@@ -18,7 +18,7 @@ void Cube::set_color(int color)
 	{
 	case 0: glColor3f(0, 0, 0); break;
 	case 1: glColor3f(1, 1, 0); break;
-	case 2: glColor3f(0.3, 0.5, 1); break;
+	case 2: glColor3f(1, 0.5, 0); break;
 	case 3: glColor3f(1, 0, 0); break;
 	case 4: glColor3f(0, 0.8, 0); break;
 	case 5: glColor3f(0, 0, 1); break;

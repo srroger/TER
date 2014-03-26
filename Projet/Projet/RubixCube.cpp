@@ -4,10 +4,24 @@
 		    ^y
 		    |
 		z<--x
-		*/
+*/
+
+#ifndef M_PI
+// Source: http://www.geom.uiuc.edu/~huberty/math5337/groupe/digits.html
+#define M_PI 3.141592653589793238462643383279502884197169399375105820974944592307816406 
+#endif
+#define DEG_TO_RAD (M_PI/180.0) //multiplier cette valeur par le degree
+#define RAD_TO_DEG (180.0/M_PI)
+
 RubixCube::RubixCube(double length)
 {
 	x= 0; y=0 ; z=0;
+	rx = 0; ry = 0; rz = 0;
+	
+	AxisX[0] = 1; AxisX[1] = 0; AxisX[2] = 0;
+	AxisY[0] = 0; AxisY[1] = 1; AxisY[2] = 0;
+	AxisZ[0] = 0; AxisZ[1] = 0; AxisZ[2] = 1;
+	
 	len = length;
 	plane.push_back(2);
 	axis.push_back(0);
@@ -36,7 +50,7 @@ RubixCube::RubixCube(double length)
 	set_centre();
 }
 
-
+/**
 void RubixCube::display_rotation()
 {
 	int i, j, k;
@@ -129,7 +143,7 @@ void RubixCube::rotation_idle_func()
 			theta += +0.5;
 		    glutPostRedisplay();
 	}
-}
+}*/
 void RubixCube::set_centre()
 {
 	int i, j, k;
@@ -164,8 +178,6 @@ void RubixCube::set_centre()
 }
 void RubixCube::display()
 {
-	if (!rotating)
-	{
 		double disp = len + 0.2;
 		//Profondeur,Hauteur,Lateral
 		/**
@@ -173,7 +185,12 @@ void RubixCube::display()
 		    |
 		z<--x
 		*/
-		glPushMatrix(); glTranslatef(x,y,z); glRotatef(rx,1,0,0);glRotatef(ry,0,1,0);glRotatef(rz,0,0,1);
+		glPushMatrix(); glTranslatef(x,y,z);
+		//Effectue les rotations
+		glRotatef(rx, AxisX[0], AxisX[1], AxisX[2]);
+		glRotatef(ry, AxisY[0], AxisY[1], AxisY[2]);
+		glRotatef(rz, AxisZ[0], AxisZ[1], AxisZ[2]);
+		
 
 		for (int i = 0; i<27; i++)
 			c[i].display();
@@ -198,9 +215,6 @@ void RubixCube::display()
 		}		*/
 		glColor4f(1, 1, 1, 0.3);
 		glPopMatrix();
-	}
-	else
-		display_rotation();
 }
 
 
@@ -220,13 +234,133 @@ void RubixCube::moveX(GLfloat val)
 
 void RubixCube::moveRX(GLfloat val)
 {
-	rx = rx + val; 
+	rx = rx + val; if(rx > 360) rx= rx-360; if(rx < -360) rx= rx+360;
+	
+	////Rotation Ox
+	//AxisX[0] = AxisX[0] - (AxisX[0] - AxisX[0]);
+	//AxisX[1] = AxisX[1] - (-AxisX[2]*sin(DEG_TO_RAD*val) + AxisX[1]*cos(DEG_TO_RAD*val) - AxisX[1]);
+	//AxisX[2] = AxisX[2] - (AxisX[2]*cos(DEG_TO_RAD*val) +  AxisX[1]*sin(DEG_TO_RAD*val) - AxisX[2]);
+	//
+	////Rotation Ox
+	//AxisY[0] = AxisY[0] - (AxisY[0] - AxisY[0]);
+	//AxisY[1] = AxisY[1] - (-AxisY[2]*sin(DEG_TO_RAD*val) + AxisY[1]*cos(DEG_TO_RAD*val) - AxisY[1]);
+	//AxisY[2] = AxisY[2] - (AxisY[2]*cos(DEG_TO_RAD*val) +  AxisY[1]*sin(DEG_TO_RAD*val) - AxisY[2]);
+
+	////Rotation Ox
+	//AxisZ[0] = AxisZ[0] - (AxisZ[0] - AxisZ[0]);
+	//AxisZ[1] = AxisZ[1] - (-AxisZ[2]*sin(DEG_TO_RAD*val) + AxisZ[1]*cos(DEG_TO_RAD*val) - AxisZ[1]);
+	//AxisZ[2] = AxisZ[2] - (AxisZ[2]*cos(DEG_TO_RAD*val) +  AxisZ[1]*sin(DEG_TO_RAD*val) - AxisZ[2]);
+
+	
 }
 void RubixCube::moveRY(GLfloat val)
 {
-	ry = ry + val; 
+	ry = ry + val; if(ry > 360) ry= ry-360; if(ry < -360) ry= ry+360;
+	
+	////Rotation Oy
+	//AxisX[0] = AxisX[0] - (AxisX[0]*cos(DEG_TO_RAD*val) + AxisX[2]*sin(DEG_TO_RAD*val) - AxisX[0]);
+	//AxisX[1] = AxisX[1] - (AxisX[1] - AxisX[1]);
+	//AxisX[2] = AxisX[2] - (-AxisX[0]*sin(DEG_TO_RAD*val) +  AxisX[2]*cos(DEG_TO_RAD*val) - AxisX[2]);
+	//
+	////Rotation Oy
+	//AxisY[0] = AxisY[0] - (AxisY[0]*cos(DEG_TO_RAD*val) + AxisY[2]*sin(DEG_TO_RAD*val) - AxisY[0]);
+	//AxisY[1] = AxisY[1] - (AxisY[1] - AxisY[1]);
+	//AxisY[2] = AxisY[2] - (-AxisY[0]*sin(DEG_TO_RAD*val) +  AxisY[2]*cos(DEG_TO_RAD*val) - AxisY[2]);
+
+	////Rotation Oy
+	//AxisZ[0] = AxisZ[0] - (AxisZ[0]*cos(DEG_TO_RAD*val) + AxisZ[2]*sin(DEG_TO_RAD*val) - AxisZ[0]);
+	//AxisZ[1] = AxisZ[1] - (AxisZ[1] - AxisZ[1]);
+	//AxisZ[2] = AxisZ[2] - (-AxisZ[0]*sin(DEG_TO_RAD*val) +  AxisZ[2]*cos(DEG_TO_RAD*val) - AxisZ[2]);
+
+	
 }
 void RubixCube::moveRZ(GLfloat val)
 {
-	rz = rz + val; 
+	rz = rz + val; if(rz > 360) rz= rz-360; if(rz < -360) rz= rz+360;
+	
+	////Rotation Oz
+	//AxisX[0] = AxisX[0] - (AxisX[0]*cos(DEG_TO_RAD*val) + AxisX[1]*sin(DEG_TO_RAD*val) - AxisX[0]);
+	//AxisX[1] = AxisX[1] - (-AxisX[0]*sin(DEG_TO_RAD*val) + AxisX[1]*cos(DEG_TO_RAD*val) - AxisX[1]);
+	//AxisX[2] = AxisX[2] - (AxisX[2] - AxisX[2]);
+
+	////Rotation Oz
+	//AxisY[0] = AxisY[0] - (AxisY[0]*cos(DEG_TO_RAD*val) + AxisY[1]*sin(DEG_TO_RAD*val) - AxisY[0]);
+	//AxisY[1] = AxisY[1] - (-AxisY[0]*sin(DEG_TO_RAD*val) + AxisY[1]*cos(DEG_TO_RAD*val) - AxisY[1]);
+	//AxisY[2] = AxisY[2] - (AxisY[2] - AxisY[2]);
+
+	////Rotation Oz
+	//AxisZ[0] = AxisZ[0] - (AxisZ[0]*cos(DEG_TO_RAD*val) + AxisZ[1]*sin(DEG_TO_RAD*val) - AxisZ[0]);
+	//AxisZ[1] = AxisZ[1] - (-AxisZ[0]*sin(DEG_TO_RAD*val) + AxisZ[1]*cos(DEG_TO_RAD*val) - AxisZ[1]);
+	//AxisZ[2] = AxisZ[2] - (AxisZ[2] - AxisZ[2]);
+
+}
+
+void RubixCube::reinit()
+{
+	rx = 0;
+	ry = 0;
+	rz = 0;
+	x = 0;
+	y = 0;
+	z = 0; 
+}
+
+
+void RubixCube::recalcAxis()
+{
+	AxisX[0] = 1; AxisX[1] = 0; AxisX[2] = 0;
+	AxisY[0] = 0; AxisY[1] = 1; AxisY[2] = 0;
+	AxisZ[0] = 0; AxisZ[1] = 0; AxisZ[2] = 1;
+
+	/**
+	//Rotation Ox
+	AxisX[0] = AxisX[0] - (AxisX[0] - AxisX[0]);
+	AxisX[1] = AxisX[1] - (-AxisX[2]*sin(DEG_TO_RAD*rx) + AxisX[1]*cos(DEG_TO_RAD*rx) - AxisX[1]);
+	AxisX[2] = AxisX[2] - (AxisX[2]*cos(DEG_TO_RAD*rx) +  AxisX[1]*sin(DEG_TO_RAD*rx) - AxisX[2]);
+	
+	//Rotation Oy
+	AxisX[0] = AxisX[0] - (AxisX[0]*cos(DEG_TO_RAD*ry) + AxisX[2]*sin(DEG_TO_RAD*ry) - AxisX[0]);
+	AxisX[1] = AxisX[1] - (AxisX[1] - AxisX[1]);
+	AxisX[2] = AxisX[2] - (-AxisX[0]*sin(DEG_TO_RAD*ry) +  AxisX[2]*cos(DEG_TO_RAD*ry) - AxisX[2]);
+	
+	//Rotation Oz
+	AxisX[0] = AxisX[0] - (AxisX[0]*cos(DEG_TO_RAD*rz) + AxisX[1]*sin(DEG_TO_RAD*rz) - AxisX[0]);
+	AxisX[1] = AxisX[1] - (-AxisX[0]*sin(DEG_TO_RAD*rz) + AxisX[1]*cos(DEG_TO_RAD*rz) - AxisX[1]);
+	AxisX[2] = AxisX[2] - (AxisX[2] - AxisX[2]);
+
+
+	//Rotation Ox
+	AxisY[0] = AxisY[0] - (AxisY[0] - AxisY[0]);
+	AxisY[1] = AxisY[1] - (-AxisY[2]*sin(DEG_TO_RAD*rx) + AxisY[1]*cos(DEG_TO_RAD*rx) - AxisY[1]);
+	AxisY[2] = AxisY[2] - (AxisY[2]*cos(DEG_TO_RAD*rx) +  AxisY[1]*sin(DEG_TO_RAD*rx) - AxisY[2]);
+	
+	//Rotation Oy
+	AxisY[0] = AxisY[0] - (AxisY[0]*cos(DEG_TO_RAD*ry) + AxisY[2]*sin(DEG_TO_RAD*ry) - AxisY[0]);
+	AxisY[1] = AxisY[1] - (AxisY[1] - AxisY[1]);
+	AxisY[2] = AxisY[2] - (-AxisY[0]*sin(DEG_TO_RAD*ry) +  AxisY[2]*cos(DEG_TO_RAD*ry) - AxisY[2]);
+
+	//Rotation Oz
+	AxisY[0] = AxisY[0] - (AxisY[0]*cos(DEG_TO_RAD*rz) + AxisY[1]*sin(DEG_TO_RAD*rz) - AxisY[0]);
+	AxisY[1] = AxisY[1] - (-AxisY[0]*sin(DEG_TO_RAD*rz) + AxisY[1]*cos(DEG_TO_RAD*rz) - AxisY[1]);
+	AxisY[2] = AxisY[2] - (AxisY[2] - AxisY[2]);
+
+
+	//Rotation Ox
+	AxisZ[0] = AxisZ[0] - (AxisZ[0] - AxisZ[0]);
+	AxisZ[1] = AxisZ[1] - (-AxisZ[2]*sin(DEG_TO_RAD*rx) + AxisZ[1]*cos(DEG_TO_RAD*rx) - AxisZ[1]);
+	AxisZ[2] = AxisZ[2] - (AxisZ[2]*cos(DEG_TO_RAD*rx) +  AxisZ[1]*sin(DEG_TO_RAD*rx) - AxisZ[2]);
+
+	//Rotation Oy
+	AxisZ[0] = AxisZ[0] - (AxisZ[0]*cos(DEG_TO_RAD*ry) + AxisZ[2]*sin(DEG_TO_RAD*ry) - AxisZ[0]);
+	AxisZ[1] = AxisZ[1] - (AxisZ[1] - AxisZ[1]);
+	AxisZ[2] = AxisZ[2] - (-AxisZ[0]*sin(DEG_TO_RAD*ry) +  AxisZ[2]*cos(DEG_TO_RAD*ry) - AxisZ[2]);
+
+	//Rotation Oz
+	AxisZ[0] = AxisZ[0] - (AxisZ[0]*cos(DEG_TO_RAD*rz) + AxisZ[1]*sin(DEG_TO_RAD*rz) - AxisZ[0]);
+	AxisZ[1] = AxisZ[1] - (-AxisZ[0]*sin(DEG_TO_RAD*rz) + AxisZ[1]*cos(DEG_TO_RAD*rz) - AxisZ[1]);
+	AxisZ[2] = AxisZ[2] - (AxisZ[2] - AxisZ[2]);
+
+
+	
+	*/
 }

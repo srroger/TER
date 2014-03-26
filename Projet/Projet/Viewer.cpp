@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "Viewer.h"
 
-Viewer::Viewer(double alpha, double beta, double radius, double min_radius)
+Viewer::Viewer(double alpha, double beta, double radius, double min_radius, RubixCube* ru)
 {
-	v_alpha = alpha; v_beta = beta; v_radius = radius; v_min_radius = min_radius;
+	v_alpha = alpha; v_beta = beta; v_radius = radius; v_min_radius = min_radius; r =ru;
 	set_position();
 }
 void Viewer::angle_range_check()
@@ -54,16 +54,16 @@ void Viewer::special_keyboard(int key)
 {
 	switch (key)
 	{
-	case GLUT_KEY_LEFT: Rotation(GAUCHE); break;
-	case GLUT_KEY_RIGHT: Rotation(DROITE); break;
-	case GLUT_KEY_DOWN: Rotation(BAS); break;
-	case GLUT_KEY_UP: Rotation(HAUT); break;
+	case GLUT_KEY_LEFT: r->moveZ(2); break;
+	case GLUT_KEY_RIGHT: r->moveZ(-2); break;
+	case GLUT_KEY_DOWN: r->moveX(2); break;
+	case GLUT_KEY_UP: r->moveY(2); break;
 	case GLUT_KEY_PAGE_UP:
-		v_radius += 1; set_position(); glutPostRedisplay(); break;
+		 r->moveRZ(15); break;
 	case GLUT_KEY_PAGE_DOWN:
-		v_radius -= 1; if (v_radius<v_min_radius) v_radius = v_min_radius;
-		set_position(); glutPostRedisplay(); break;
+		 r->moveRY(15); break;
 	}
+	set_position(); glutPostRedisplay(); 
 }
 
 void Viewer::reset_view(double alpha, double beta, double radius, double min_radius)
