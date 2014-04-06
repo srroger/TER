@@ -31,7 +31,7 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 	toleranceIdle = 20;
 
 	sensiRot =0.1;
-	cranRotation = 3;
+	cranRotation = 10;
 
 	seuilCote = 15;
 }
@@ -199,6 +199,8 @@ bool Interpreteur::rotationBas(vector<Centre> tabCentre, vector<Centre> tabNewCe
 
 	if(cptRotation*cranRotation >= maxRotation)
 		faireRotation=false; // on a fait une rotation 
+	else
+		faireRotation=true;
 	return true;
 }
 
@@ -208,15 +210,19 @@ bool Interpreteur::rotationFace(vector<Centre> tabCentre, vector<Centre> tabNewC
 	r->moveRX(cranRotation); cptRotation++;
 	if(cptRotation*cranRotation >= maxRotation)
 		faireRotation=false; // on a fait une rotation 
+	else
+		faireRotation=true;
 	return true;
 }
 
 //BLEU
 bool Interpreteur::rotationCote(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 {
-	r->moveRZ(cranRotation); cptRotation++;
+	r->moveRZ(cranRotation); cptRotation++
 	if(cptRotation*cranRotation >= maxRotation)
 		faireRotation=false; // on a fait une rotation 
+	else
+		faireRotation=true;
 	return true;
 }
 
@@ -229,7 +235,7 @@ void Interpreteur::launch(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 		mode = tabNewCentre.size();
 		switch (mode)
 		{
-		case 0: {faireRotation=true; cptRotation = 0 ; break;}
+		case 0: { cptRotation = 0 ; break;}
 		case 1: {if(faireRotation){ rotation(tabCentre,tabNewCentre);} break;}
 		case 2: {if(tabCentre[0].couleurFacile == ROUGE ) translation(0); else if(tabCentre[1].couleurFacile == ROUGE) translation(1); break;}
 		case 3:	{if(tabCentre[0].couleurFacile == ROUGE ) translation(0); else if(tabCentre[1].couleurFacile == ROUGE) translation(1); else if (tabCentre[2].couleurFacile == ROUGE ) translation(2);  break;}
