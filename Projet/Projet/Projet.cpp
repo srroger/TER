@@ -470,6 +470,47 @@ void reshape(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 }
 
+
+void key(unsigned char key,int x ,int y)
+{
+	switch(key)
+	{
+	case 'R':
+	case 'r':
+		v.reset_view(45,45,20,10);
+		break;
+	case 27:
+		//if(conformationbox(L"Exit?",L"Do You Want To Exit?"))
+			exit(0);
+		break;
+	case 'n':
+	case 'N':
+		//if(conformationbox(L"New Game?",L"Do You Want To Start A New Game?"))
+		//{
+			r.randomize();
+			glutPostRedisplay();
+		//}
+		break;
+	case '.': case '>':
+	case ',': case '<':
+	case 'x': case 'X':
+	case 'y': case 'Y':
+	case 'z': case 'Z':
+	case '1': case '2': case '3':
+		r.keyboard(key);
+		glutPostRedisplay();
+		break;
+	case 's':
+	case 'S':
+		if(!r.solving)
+			//if(!conformationbox(L"Solve Cube?",L"Do You Want The Computer To Solve The Cube?"))
+				break;
+		r.keyboard(key);
+		glutPostRedisplay();
+		break;
+	}
+}
+
 void specialkey(int key, int x, int y)
 {
 	switch (key)
@@ -525,7 +566,7 @@ void on_opengl(int argc, char * argv[]) {
 	glutCreateWindow("Rubik's Cube"); 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
-	glutKeyboardFunc(processNormalKeys);
+	glutKeyboardFunc(key);
 	glutSpecialFunc(specialkey);
 	glutIdleFunc(idle);
 	init();
@@ -539,7 +580,7 @@ void on_opengl(int argc, char * argv[]) {
 int redo = 0; int numberBeforeRedo = 40; // Ces variables permette de ne pas refaire de binarisation enchainer
 void idle()
 {
-//	r.rotation_idle_func();
+	r.rotation_idle_func();
 
 
 		// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
@@ -658,7 +699,7 @@ int main( int argc, char * argv[])
 	//debut = clock();
 	
     // Ouvrir le flux vidéo
-    capture = cvCreateCameraCapture(2);
+    capture = cvCreateCameraCapture(CV_CAP_ANY);
 	
     // Vérifier si l'ouverture du flux est ok
     if (!capture) {

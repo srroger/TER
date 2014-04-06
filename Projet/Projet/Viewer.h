@@ -6,13 +6,15 @@
 #include "vector"
 #include "windows.h"
 #include "glut.h"
+#include "Centre.h"
 
 #include "RubixCube.h"
 class Viewer
 {
 	double pos[3];
+	double posTrans[3];
 	double v_alpha, v_beta, v_radius, v_min_radius;
-
+	int cranRotationViewer;
 public:
 	
 	RubixCube* r;
@@ -22,7 +24,7 @@ public:
 	void special_keyboard(int key);
 	void reset_view(double alpha, double beta, double radius, double min_radius);
 	void LookAtCentre();
-	void Rotation(int sens);
+	void Rotation(int sens,int val);
 
 };
 

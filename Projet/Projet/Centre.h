@@ -22,6 +22,12 @@ public:
 	#define BLEU 2
 	#define RIEN 3
 
+	//Rotation()
+	#define GAUCHE 0 
+	#define DROITE 1 
+	#define HAUT 2 
+	#define BAS 3 
+
 	int H;
 	int W;
 };
