@@ -96,10 +96,10 @@ bool Interpreteur::reinitialisation(vector<Centre> tabCentre, vector<Centre> tab
 	if(good)
 		cptRefreshFrame++;
 
-	cout << "cptRefresh : " <<cptRefreshFrame <<endl;
+	//cout << "cptRefresh : " <<cptRefreshFrame <<endl;
 	if(cptRefreshFrame >= RefreshEvery)
 	{
-		cout <<"Reinitialise la scene" <<endl;
+		//cout <<"Reinitialise la scene" <<endl;
 		r->reinit();
 		cptRefreshFrame = 0;
 	}
@@ -158,6 +158,7 @@ void Interpreteur::rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentr
 
 	}
 
+	/**
 	cout << "Essaye la rotation" << endl;
 	for(int j = 0 ; j < 3 ; j++)
 	{
@@ -167,7 +168,7 @@ void Interpreteur::rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentr
 			cout << j;
 		cout << "||" ;
 	}
-	
+	*/
 
 	//En fonction des couleurs vu, ont décide quelle type de rotation il faut faire
 	// Bleu Rouge -> Rotation Face

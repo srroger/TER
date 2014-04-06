@@ -124,7 +124,7 @@ IplImage* binarisation(IplImage* image) {
     cvReleaseStructuringElement(&kernel);
 
     // Show the result of the mask image
-    cvShowImage("GeckoGeek Mask", mask);
+    //cvShowImage("GeckoGeek Mask", mask);
 
 	return mask;
 }
@@ -361,7 +361,7 @@ void getObjectColor(int event, int x, int y, int flags, void *param = NULL) {
         // Get the selected pixel
         pixel = cvGet2D(hsv, y, x); // hsv
 		//cout <<"r "<< (int)pixel.val[0] <<" g "<<(int)pixel.val[1]<<" b "<<(int)pixel.val[2]<< endl;
-		cout <<"h "<< (int)pixel.val[0] <<" s "<<(int)pixel.val[1]<<" v "<<(int)pixel.val[2]<< endl;
+		//cout <<"h "<< (int)pixel.val[0] <<" s "<<(int)pixel.val[1]<<" v "<<(int)pixel.val[2]<< endl;
         // Release the memory of the hsv image
             cvReleaseImage(&hsv);
  
@@ -555,9 +555,12 @@ void idle()
 			if(say)
 			switch (cptInit)
 			{
-			case 0 : cout << "Cliquez sur le Rouge" <<endl  ;say = false; break; 
-			case 1 : cout << "Cliquez sur le Vert" <<endl ;say = false; break; ; 
-			case 2 : cout << "Cliquez sur le Bleu" <<endl  ;say = false;  break; ; 
+			case 0 : cout << "Cliquez sur le Rouge" <<endl  ;
+				say = false; break; 
+			case 1 : cout << "Cliquez sur le Vert" <<endl ;
+				say = false; break; ; 
+			case 2 : cout << "Cliquez sur le Bleu" <<endl  ;
+				say = false;  break; ; 
 			case 3 : initialisation = false ;
 			}
 			cvFlip(image,image,-1); 
@@ -570,18 +573,18 @@ void idle()
 		{
 			
 			redo++;
-			cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
+			//cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
 			if( (tabCentre.size()<6 && tabCentre.size()!=1 && tabCentre.size()!=2  && tabCentre.size()!=3 && redo >= numberBeforeRedo) ){ //!!!!!
 			//if( tabCentre.size()<6 && tabCentre.size()!=1){ //!!!!!
 				debut = clock();
 				imageBis=binarisation(image);
 				fin = clock(); 
-				cout<<" 2   binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+				//cout<<" 2   binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 				debut = clock();
 				tabCentre=detection(imageBis);
 				DrawCentre(tabCentre);
 				fin = clock(); 
-				cout<<" 2   detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
+				//cout<<" 2   detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
 				redo =0;
 			}
 
@@ -668,9 +671,9 @@ int main( int argc, char * argv[])
 	
 	// Create the windows
     cvNamedWindow("GeckoGeek Color Tracking", CV_WINDOW_AUTOSIZE);
-    cvNamedWindow("GeckoGeek Mask", CV_WINDOW_AUTOSIZE);
+    //cvNamedWindow("GeckoGeek Mask", CV_WINDOW_AUTOSIZE);
     cvMoveWindow("GeckoGeek Color Tracking", 0, 300);
-    cvMoveWindow("GeckoGeek Mask", 650, 50);
+    //cvMoveWindow("GeckoGeek Mask", 650, 50);
 	// Mouse event to select the tracked color on the original image
     cvSetMouseCallback("GeckoGeek Color Tracking", getObjectColor);
  
@@ -683,12 +686,12 @@ int main( int argc, char * argv[])
 		debut = clock();
 		imageBis=binarisation(image);
 		fin = clock(); 
-		cout<<"  binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+		//cout<<"  binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 		//debut = clock();
 		tabCentre = vector<Centre>(detection(imageBis));
 		DrawCentre(tabCentre);
 		fin = clock(); 
-		cout<<"  detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
+		//cout<<"  detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
 		
   
 		
@@ -703,7 +706,7 @@ int main( int argc, char * argv[])
 
     cvReleaseCapture(&capture);
 	cvDestroyWindow("GeckoGeek Color Tracking");
-    cvDestroyWindow("GeckoGeek Mask");
+    //cvDestroyWindow("GeckoGeek Mask");
 
 
 }

@@ -15,8 +15,8 @@
 ///c'est genial!!!
 RubixCube::RubixCube(double length)
 {
-	x= 0; y=0 ; z=0;
-	rx = 0; ry = 30; rz = 0;
+	x= 25; y=0 ; z=0;
+	rx = 0; ry = 10; rz = 20;
 	
 	AxisX[0] = 1; AxisX[1] = 0; AxisX[2] = 0;
 	AxisY[0] = 0; AxisY[1] = 1; AxisY[2] = 0;
@@ -50,7 +50,7 @@ RubixCube::RubixCube(double length)
 	set_centre();
 }
 
-/**
+
 void RubixCube::display_rotation()
 {
 	int i, j, k;
@@ -143,7 +143,7 @@ void RubixCube::rotation_idle_func()
 			theta += +0.5;
 		    glutPostRedisplay();
 	}
-}*/
+}
 void RubixCube::set_centre()
 {
 	int i, j, k;
