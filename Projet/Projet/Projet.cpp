@@ -476,8 +476,9 @@ void specialkey(int key, int x, int y)
 	{
 	case GLUT_KEY_LEFT: case GLUT_KEY_RIGHT:
 	case GLUT_KEY_DOWN:	case GLUT_KEY_UP:
-	case GLUT_KEY_PAGE_UP:case GLUT_KEY_PAGE_DOWN:
-	v.special_keyboard(key); break;
+	case GLUT_KEY_PAGE_UP:case GLUT_KEY_PAGE_DOWN:	case GLUT_KEY_HOME : 
+	v.special_keyboard(key);
+	break;
 	}
 }
 void processNormalKeys(unsigned char key, int x, int y) {
@@ -627,6 +628,7 @@ void idle()
 			keyb = cvWaitKey(5);
 			f=clock();
 			//cout<<"  tt : "<<((double)(f-d) / (double) CLOCKS_PER_SEC)<<endl; 
+			r.rotation_Test();
 		}
 		
 
@@ -657,8 +659,8 @@ int main( int argc, char * argv[])
 	interprete = Interpreteur(&v,&r, hR, sR, hG, sG, hB, sB);
 	//debut = clock();
 	
-    // Ouvrir le flux vidéo
-    capture = cvCreateCameraCapture(2);
+    // Ouvrir le flux vidéo : CV_CAP_ANY ou 2 
+    capture = cvCreateCameraCapture(CV_CAP_ANY);
 	
     // Vérifier si l'ouverture du flux est ok
     if (!capture) {
