@@ -6,8 +6,13 @@
 		z<--x
 */
 
-
-
+#ifndef M_PI
+// Source: http://www.geom.uiuc.edu/~huberty/math5337/groupe/digits.html
+#define M_PI 3.141592653589793238462643383279502884197169399375105820974944592307816406 
+#endif
+#define DEG_TO_RAD (M_PI/180.0) //multiplier cette valeur par le degree
+#define RAD_TO_DEG (180.0/M_PI)
+///c'est genial!!!
 RubixCube::RubixCube(double length)
 {
 	x= 25; y=0 ; z=0;
@@ -43,56 +48,8 @@ RubixCube::RubixCube(double length)
 	for (k = 0; k<3; k++)
 		cubepos[i][j][k] = p++;
 	set_centre();
-
-	//TEST : 
-	//c[cubepos[0][0][0]].rotate(0,0);
-	/**
-	for(int cpt = 0 ; cpt < 6 ; cpt++)
-		cout << c[cubepos[0][1][1]].color[cpt]<<" , "; cout <<endl;
-	for(int cpt = 0 ; cpt < 6 ; cpt++)
-		cout << c[cubepos[2][1][1]].color[cpt]<<" , ";cout <<endl;
-	for(int cpt = 0 ; cpt < 6 ; cpt++)
-		cout << c[cubepos[1][0][1]].color[cpt]<<" , ";cout <<endl;
-	for(int cpt = 0 ; cpt < 6 ; cpt++)
-		cout << c[cubepos[1][2][1]].color[cpt]<<" , ";cout <<endl;
-	for(int cpt = 0 ; cpt < 6 ; cpt++)
-		cout << c[cubepos[1][1][0]].color[cpt]<<" , ";cout <<endl;
-	for(int cpt = 0 ; cpt < 6 ; cpt++)
-		cout << c[cubepos[1][1][2]].color[cpt]<<" , ";cout <<endl;*/
 }
 
-
-void RubixCube::rotation_Test()
-{
-	int i, j, k;
-	double angle, disp = len + 0.2;
-
-	angle = -90;
-
-	glPushMatrix();
-
-	for (i = 0; i<3; i++)
-	{
-		if (i != 1)
-		{
-			for (j = 0; j<3; j++)
-			for (k = 0; k<3; k++)
-				c[cubepos[i][j][k]].display();
-		}
-	}
-	glRotated(angle, 1, 0, 0);
-	for (j = 0; j<3; j++)
-	for (k = 0; k<3; k++)
-		c[cubepos[0][j][k]].display();
-
-
-
-	glRotatef(90, 0, 1, 0);
-	
-	glColor4f(1, 1, 1, 0.3);
-	glRectd(-(len*2.25), -(len*2.25), (len*2.25), (len*2.25));
-	glPopMatrix();
-}
 
 void RubixCube::display_rotation()
 {
@@ -228,31 +185,12 @@ void RubixCube::display()
 		    |
 		z<--x
 		*/
-		glPushMatrix(); 
-		
-		glTranslatef(x,y,z);
+		glPushMatrix(); glTranslatef(x,y,z);
 		//Effectue les rotations
-		//glRotatef(rx, AxisX[0], AxisX[1], AxisX[2]);
-		//glRotatef(ry, AxisY[0], AxisY[1], AxisY[2]);
-		//glRotatef(rz, AxisZ[0], AxisZ[1], AxisZ[2]);
-		//On utilise nos propres fonction de rotations, afin que les axes reste les même et que ce soit les bonne rotations. Par conséquent, glRotatef est obsolète car il modifie tout le repère en entier.
-		//Maintenant pour faire une rotation, on change cx,cy,cz en fonction de la formule de rotations, et quand on fait les glVertex3d, on applique, aussi ces formules avec le rx, ry, rz globazle. Mais pour la rotation des centre on le n'utilise plus rx mais l'angle en plus tout simplement.
-		//fONCTION QUI SE TROUVE DANS LES MOVErx ...
-
-
-		glBegin(GL_LINES);
-		glColor3f(1, 0, 0);
-		glVertex3f(-50, -2, -20);
-		glVertex3f(50, -2, -20);
-
-		glColor3f(0, 1, 0);
-		glVertex3f(0, -50, -20);
-		glVertex3f(0, 50, -20);
-
-		glColor3f(0, 0, 1);
-		glVertex3f(0, -2, -100);
-		glVertex3f(0, -2, 10);
-		glEnd();
+		glRotatef(rx, AxisX[0], AxisX[1], AxisX[2]);
+		glRotatef(ry, AxisY[0], AxisY[1], AxisY[2]);
+		glRotatef(rz, AxisZ[0], AxisZ[1], AxisZ[2]);
+		
 
 		for (int i = 0; i<27; i++)
 			c[i].display();
@@ -260,7 +198,7 @@ void RubixCube::display()
 		/**
 		if (axis.back() == 0)
 		{
-			if (plane.bac() == 0) glTranslated(-disp, 0, 0);
+			if (plane.back() == 0) glTranslated(-disp, 0, 0);
 			else if (plane.back() == 2) glTranslated(disp, 0, 0);
 			glRotatef(90, 0, 1, 0);
 		}
@@ -294,24 +232,10 @@ void RubixCube::moveX(GLfloat val)
 	x = x + val; 
 }
 
-
 void RubixCube::moveRX(GLfloat val)
 {
 	rx = rx + val; if(rx > 360) rx= rx-360; if(rx < -360) rx= rx+360;
 	
-	for(int i = 0 ; i < 27 ; i++)
-	{
-		float cxprime = c[i].cx;
-		float cyprime = c[i].cy*cos(DEG_TO_RAD*val) - c[i].cz*sin(DEG_TO_RAD*val);
-		float czprime = c[i].cy*sin(DEG_TO_RAD*val) + c[i].cz*cos(DEG_TO_RAD*val);
-
-		c[i].cx = cxprime;
-		c[i].cy = cyprime;
-		c[i].cz = czprime;
-		c[i].rx = rx;
-		c[i].MoveRX(val);
-	}
-
 	////Rotation Ox
 	//AxisX[0] = AxisX[0] - (AxisX[0] - AxisX[0]);
 	//AxisX[1] = AxisX[1] - (-AxisX[2]*sin(DEG_TO_RAD*val) + AxisX[1]*cos(DEG_TO_RAD*val) - AxisX[1]);
@@ -333,23 +257,6 @@ void RubixCube::moveRY(GLfloat val)
 {
 	ry = ry + val; if(ry > 360) ry= ry-360; if(ry < -360) ry= ry+360;
 	
-	for(int i = 0 ; i < 27 ; i++)
-	{
-		float cxprime = c[i].cx*cos(DEG_TO_RAD*val) + c[i].cz*sin(DEG_TO_RAD*val);
-		float cyprime = c[i].cy;
-		float czprime = -c[i].cx*sin(DEG_TO_RAD*val) + c[i].cz*cos(DEG_TO_RAD*val);
-
-		c[i].cx = cxprime;
-		c[i].cy = cyprime;
-		c[i].cz = czprime;
-		c[i].ry = ry;
-		
-		c[i].MoveRY(val);
-	}
-
-
-
-
 	////Rotation Oy
 	//AxisX[0] = AxisX[0] - (AxisX[0]*cos(DEG_TO_RAD*val) + AxisX[2]*sin(DEG_TO_RAD*val) - AxisX[0]);
 	//AxisX[1] = AxisX[1] - (AxisX[1] - AxisX[1]);
@@ -370,21 +277,6 @@ void RubixCube::moveRY(GLfloat val)
 void RubixCube::moveRZ(GLfloat val)
 {
 	rz = rz + val; if(rz > 360) rz= rz-360; if(rz < -360) rz= rz+360;
-	
-	
-	for(int i = 0 ; i < 27 ; i++)
-	{
-		float cxprime = c[i].cx*cos(DEG_TO_RAD*val) - c[i].cy*sin(DEG_TO_RAD*val);
-		float cyprime = c[i].cx*sin(DEG_TO_RAD*val) + c[i].cy*cos(DEG_TO_RAD*val);
-		float czprime = c[i].cz;
-
-		c[i].cx = cxprime;
-		c[i].cy = cyprime;
-		c[i].cz = czprime;
-		c[i].rz = rz;
-		c[i].MoveRZ(val);
-	}
-
 	
 	////Rotation Oz
 	//AxisX[0] = AxisX[0] - (AxisX[0]*cos(DEG_TO_RAD*val) + AxisX[1]*sin(DEG_TO_RAD*val) - AxisX[0]);
@@ -471,159 +363,4 @@ void RubixCube::recalcAxis()
 
 	
 	*/
-}
-
-
-
-//Choix arbitraire (cubepos[i][j][k])
-//Face 1 : cubepos[0][x][y]
-//Face 2 : cubepos[2][x][y]
-//Face 3 : cubepos[x][0][y]
-//Face 4 : cubepos[x][2][y]
-//Face 5 : cubepos[x][y][0]
-//Face 6 : cubepos[x][y][0]
-/*
-Fonctionnement des faces et des couleurs
-Chaque faces est représenter par sa couleur qui va de 1 à 6.
-
-c[cubepos[0][1][1]].color[cpt] : 3 Orange
-c[cubepos[2][1][1]].color[cpt] : 6 Blanc
-c[cubepos[1][0][1]].color[cpt] : 2 Rouge
-c[cubepos[1][2][1]].color[cpt] : 5 Jaune
-c[cubepos[1][1][0]].color[cpt] : 4 Bleu
-c[cubepos[1][1][2]].color[cpt] : 1 Vert
-*/
-
-void RubixCube::rotation_face(int face, int direction)
-{
-	Cube tabCub[3][3];
-
-	switch (face)
-	{
-	case 1 : 
-		for(int  i = 0 ; i<3;i++)
-			for(int  j =  0 ; j < 3 ; j++)
-			{
-				tabCub[i][j] = c[cubepos[0][i][j]];
-			}
-		break;
-	case 2 :
-		for(int  i = 0 ; i<3;i++)
-			for(int  j =  0 ; j < 3 ; j++)
-			{
-				tabCub[i][j] = c[cubepos[2][i][j]];
-			}
-		break;
-	case 3 :
-		for(int  i = 0 ; i<3;i++)
-			for(int  j =  0 ; j < 3 ; j++)
-			{
-				tabCub[i][j] = c[cubepos[i][0][j]];
-			}
-		break;
-	case 4 :
-		for(int  i = 0 ; i<3;i++)
-			for(int  j =  0 ; j < 3 ; j++)
-			{
-				tabCub[i][j] = c[cubepos[i][2][j]];
-			}
-		break;
-	case 5 : 
-		for(int  i = 0 ; i<3;i++)
-			for(int  j =  0 ; j < 3 ; j++)
-			{
-				tabCub[i][j] = c[cubepos[i][j][0]];
-			}
-		break;
-	case 6 : 
-		for(int  i = 0 ; i<3;i++)
-			for(int  j =  0 ; j < 3 ; j++)
-			{
-				tabCub[i][j] = c[cubepos[i][j][2]];
-			}
-		break;
-	}
-
-	//Le point centre est celui dont i=1, j=1
-
-
-	//TODO
-
-
-
-
-
-	/**
-
-				//Calcul du barycentre C
-			C.x = (ptCar[0].x + ptCar[1].x + ptCar[2].x)/3;
-			C.y = (ptCar[0].y + ptCar[1].y + ptCar[2].y)/3;
-			C2.x = (ptCar[0+3].x + ptCar[1+3].x + ptCar[2+3].x)/3;
-			C2.y = (ptCar[0+3].y + ptCar[1+3].y + ptCar[2+3].y)/3;
-
-			//Place les points en polaire avec pour repaire de centre C.
-
-			ptPol[0].r = sqrt( pow((ptCar[0].x-C.x),2) + pow((ptCar[0].y - C.y),2) );
-			ptPol[1].r = sqrt( pow((ptCar[1].x-C.x),2) + pow((ptCar[1].y - C.y),2) );
-			ptPol[2].r = sqrt( pow((ptCar[2].x-C.x),2) + pow((ptCar[2].y - C.y),2) );
-			ptPol[3].r = sqrt( pow(( ptCar[0+3].x-C2.x),2) + pow(( ptCar[0+3].y - C2.y),2) );
-			ptPol[4].r = sqrt( pow(( ptCar[1+3].x-C2.x),2) + pow(( ptCar[1+3].y - C2.y),2) );
-			ptPol[5].r = sqrt( pow(( ptCar[2+3].x-C2.x),2) + pow(( ptCar[2+3].y - C2.y),2) );
-
-			ptPol[0].teta = acos( ( ptCar[0].x-C.x) / ptPol[0].r);
-			ptPol[1].teta = acos( (ptCar[1].x-C.x) / ptPol[1].r);
-			ptPol[2].teta = acos( (ptCar[2].x-C.x) / ptPol[2].r);
-			ptPol[3].teta = acos( ( ptCar[0+3].x-C2.x) / ptPol[3].r);
-			ptPol[4].teta = acos( ( ptCar[1+3].x-C2.x) / ptPol[4].r);
-			ptPol[5].teta = acos( ( ptCar[2+3].x-C2.x) / ptPol[5].r);
-
-			Calcul du barycentre C
-			C.x = (ptCar[0].x + ptCar[1].x + ptCar[2].x)/3;
-			C.y = (ptCar[0].y + ptCar[1].y + ptCar[2].y)/3;
-			C2.x = (ptCar[0+3].x + ptCar[1+3].x + ptCar[2+3].x)/3;
-			C2.y = (ptCar[0+3].y + ptCar[1+3].y + ptCar[2+3].y)/3;
-			PointGL Cmoy;
-			Cmoy.x = C.x + (C2.x-C.x);
-			Cmoy.y = C.y + (C2.y-C.y);
-			Cmoy = C;
-			Place les points en polaire avec pour repaire de centre C.
-
-			ptPol[0].r = sqrt( pow((ptCar[0].x-Cmoy.x),2) + pow((ptCar[0].y - Cmoy.y),2) );
-			ptPol[1].r = sqrt( pow((ptCar[1].x-Cmoy.x),2) + pow((ptCar[1].y - Cmoy.y),2) );
-			ptPol[2].r = sqrt( pow((ptCar[2].x-Cmoy.x),2) + pow((ptCar[2].y - Cmoy.y),2) );
-			ptPol[3].r = sqrt( pow(( ptCar[0+3].x-Cmoy.x),2) + pow(( ptCar[0+3].y - Cmoy.y),2) );
-			ptPol[4].r = sqrt( pow(( ptCar[1+3].x-Cmoy.x),2) + pow(( ptCar[1+3].y - Cmoy.y),2) );
-			ptPol[5].r = sqrt( pow(( ptCar[2+3].x-Cmoy.x),2) + pow(( ptCar[2+3].y - Cmoy.y),2) );
-
-			ptPol[0].teta = acos(  ( ptCar[0].x-Cmoy.x) / ptPol[0].r);
-			ptPol[1].teta = acos( (ptCar[1].x-Cmoy.x) / ptPol[1].r);
-			ptPol[2].teta = acos( (ptCar[2].x-Cmoy.x) / ptPol[2].r);
-			ptPol[3].teta = acos( ( ptCar[0+3].x-Cmoy.x) / ptPol[3].r);
-			ptPol[4].teta = acos( ( ptCar[1+3].x-Cmoy.x) / ptPol[4].r);
-			ptPol[5].teta = acos( ( ptCar[2+3].x-Cmoy.x) / ptPol[5].r);
-			float delta[3];
-			for(int i = 0 ; i < 3 ; i++)
-			{
-				delta[i] = ptPol[i+3].teta - ptPol[i].teta;
-				cout << endl << delta[i] << ":"<<i;
-			}
-
-			Droite ou gauche Si delta > 0 : gauche sinon droite si delta trop proche de 0 rien du tout
-			Face donc sur l'axe d'openGL
-			float sommeDelta = 0; 
-			float moyDelta =0; int nbDelta=0;
-			for(int i =0; i <3 ; i++)
-			{
-				sommeDelta += delta[i];  nbDelta++;
-			}
-			moyDelta =sommeDelta / nbDelta;
-			cout << "d :" << moyDelta << endl;
-		
-			if(abs(moyDelta) > sensiRot)
-			if(moyDelta < 0) 
-			{
-				r->moveRX(cranRotation);
-			}else
-				r->moveRX(-cranRotation);
-				*/
 }

@@ -24,6 +24,15 @@ Elle fera aussi les pré-traitements dans cette optiques
 #define ROTATION_MODE 3
 #define IDLE 0
 
+struct PointGL{
+	float x,y,z;
+	int couleurFacile;
+};
+struct PointPolaire{
+	float r,teta;
+	int couleurFacile;
+};
+
 class Interpreteur
 {
 public:

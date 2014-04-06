@@ -62,8 +62,6 @@ void Viewer::special_keyboard(int key)
 		 r->moveRZ(15); break;
 	case GLUT_KEY_PAGE_DOWN:
 		 r->moveRY(15); break;
-	case GLUT_KEY_HOME:
-		 r->moveRX(15); break;
 	}
 	set_position(); glutPostRedisplay(); 
 }
