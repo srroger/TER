@@ -378,27 +378,6 @@ void getObjectColor(int event, int x, int y, int flags, void *param = NULL) {
  
 }
  
-/*void Inverse(){
-	IplImage* ImgInv= cvCloneImage(image);//cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1);
-	CvScalar pixel1;
-	CvScalar pixel2;
-	int w=image->width;
-	for (int y=0; y<image->height; ++y)
-	{
-		for (int x=0;x<image->width; ++x){
-			pixel1= cvGet2D(image,y,x);
-			for (int k = 0; k < image->nChannels; ++k){
-				pixel2.val[k] = pixel1.val[k];
-			}
-			cvSet2D(ImgInv,y,w-1 - x,pixel2);//cout<<pixel<<endl;
-		}
-	 }
-	  //cvShowImage("ImgInv", ImgInv);
-	 image=cvCloneImage(ImgInv);
-	 cvReleaseImage(&ImgInv);
-}*/
-
-
 
 
 
@@ -658,7 +637,7 @@ int main( int argc, char * argv[])
 	//debut = clock();
 	
     // Ouvrir le flux vidéo
-    capture = cvCreateCameraCapture(2);
+    capture = cvCreateCameraCapture(CV_CAP_ANY);// CV_CAP_ANY
 	
     // Vérifier si l'ouverture du flux est ok
     if (!capture) {

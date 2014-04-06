@@ -32,6 +32,7 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 
 	sensiRot =0.1;
 	cranRotation = 10;
+	couleurTrouveePred=RIEN;
 
 	seuilCote = 15;
 }
@@ -171,58 +172,60 @@ void Interpreteur::rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentr
 	*/
 
 	//En fonction des couleurs vu, ont décide quelle type de rotation il faut faire
-	// Bleu Rouge -> Rotation Face
-	// Bleu Vert -> Rotation lateral
-	// Vert Rouge -> Rotation bas
-	/*if(couleur[BLEU] && couleurNew[BLEU] && couleur[ROUGE] && couleurNew[ROUGE])
-		rotationFace(tabCentre,tabNewCentre);
-	if(couleur[BLEU] && couleurNew[BLEU] && couleur[VERT] && couleurNew[VERT])
-		rotationCote(tabCentre,tabNewCentre);
-	if( couleur[VERT] && couleurNew[VERT] && couleur[ROUGE] && couleurNew[ROUGE])
-		rotationBas(tabCentre,tabNewCentre);*/
-
-
+	// Rouge -> Rotation Face
+	// Bleu -> Rotation lateral
+	// Vert  -> Rotation bas
 	if(couleur[ROUGE] && couleurNew[ROUGE])
-		rotationFace(tabCentre,tabNewCentre);
+		rotationFace();
 	if(couleur[BLEU] && couleurNew[BLEU])
-		rotationCote(tabCentre,tabNewCentre);
+		rotationCote();
 	if( couleur[VERT] && couleurNew[VERT])
-		rotationBas(tabCentre,tabNewCentre);
+		rotationBas();
 
 }
 
 
 //VERT
-bool Interpreteur::rotationBas(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
+bool Interpreteur::rotationBas()//vector<Centre> tabCentre, vector<Centre> tabNewCentre
 {
+	couleurTrouveePred=VERT;
+	cout<<"vert"<<endl;
 	r->moveRY(cranRotation); cptRotation++;
 
-	if(cptRotation*cranRotation >= maxRotation)
-		faireRotation=false; // on a fait une rotation 
-	else
-		faireRotation=true;
+	if(cptRotation*cranRotation >= maxRotation){
+		faireRotation=false; 
+		couleurTrouveePred=RIEN;
+		// la rotation de 90 a ete faite
+	}
+	
 	return true;
 }
 
 //ROUGE
-bool Interpreteur::rotationFace(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
-{	
+bool Interpreteur::rotationFace()
+{	cout<<"Rouge"<<endl;
+	couleurTrouveePred=ROUGE;
 	r->moveRX(cranRotation); cptRotation++;
-	if(cptRotation*cranRotation >= maxRotation)
-		faireRotation=false; // on a fait une rotation 
-	else
-		faireRotation=true;
+	if(cptRotation*cranRotation >= maxRotation){
+		faireRotation=false;
+		couleurTrouveePred=RIEN;
+		// la rotation de 90 a ete faite
+	}
 	return true;
 }
 
 //BLEU
-bool Interpreteur::rotationCote(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
+bool Interpreteur::rotationCote()//vector<Centre> tabCentre, vector<Centre> tabNewCentre
 {
-	r->moveRZ(cranRotation); cptRotation++
-	if(cptRotation*cranRotation >= maxRotation)
-		faireRotation=false; // on a fait une rotation 
-	else
-		faireRotation=true;
+	cout<<"bleu"<<endl;
+	couleurTrouveePred=BLEU;
+	r->moveRZ(cranRotation); // on fait une rotation
+	cptRotation++; 
+	if(cptRotation*cranRotation >= maxRotation){
+		faireRotation=false; 
+		couleurTrouveePred=RIEN;
+		// la rotation de 90 a ete faite
+	}
 	return true;
 }
 
@@ -235,7 +238,17 @@ void Interpreteur::launch(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 		mode = tabNewCentre.size();
 		switch (mode)
 		{
-		case 0: { cptRotation = 0 ; break;}
+		case 0: {if(!faireRotation){ faireRotation=true; cptRotation = 0 ;}
+				else if(faireRotation && couleurTrouveePred!=RIEN)
+					{
+						if(couleurTrouveePred==ROUGE)
+							rotationFace();
+						if(couleurTrouveePred==VERT)
+							rotationBas();
+						if(couleurTrouveePred==BLEU)
+							rotationCote();
+					}  
+				break;}
 		case 1: {if(faireRotation){ rotation(tabCentre,tabNewCentre);} break;}
 		case 2: {if(tabCentre[0].couleurFacile == ROUGE ) translation(0); else if(tabCentre[1].couleurFacile == ROUGE) translation(1); break;}
 		case 3:	{if(tabCentre[0].couleurFacile == ROUGE ) translation(0); else if(tabCentre[1].couleurFacile == ROUGE) translation(1); else if (tabCentre[2].couleurFacile == ROUGE ) translation(2);  break;}
