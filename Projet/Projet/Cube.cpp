@@ -16,14 +16,14 @@ void Cube::set_color(int color)
 {
 	switch (color)
 	{
-	case 0: glColor3f(0, 0, 0); break;
-	case 1: glColor3f(1, 1, 0); break;
-	case 2: glColor3f(1, 0.5, 0); break;
-	case 3: glColor3f(1, 0, 0); break;
-	case 4: glColor3f(0, 0.8, 0); break;
-	case 5: glColor3f(0, 0, 1); break;
-	case 6: glColor3f(1, 1, 1); break;
-	default: glColor3f(0, 0, 0);
+	//case 0: glColor3f(0, 0, 0); break; // noir
+	case 1: glColor3f(0, 0.8, 0); break; // bleu
+	case 2: glColor3f(1, 0, 0); break; // rouge
+	case 3: glColor3f(1, 0.5, 0); break; // Jaune
+	case 4: glColor3f(0, 0, 1); break; // vert
+	case 5: glColor3f(1, 1, 0); break; //orange
+	case 6: glColor3f(1, 1, 1); break; // blanc
+	default: glColor3f(0, 0, 0); // noir
 	}
 }
 void Cube::display()
