@@ -14,8 +14,10 @@
 
 RubixCube::RubixCube(double length)
 {
-		x= 0; y=0 ; z=0;
-	rx = 0; ry = 0; rz = 0;
+	x= 20; y=0 ; z=0;
+	rx = 0; ry = 45; rz = -30;	
+	//x= 0; y=0 ; z=0;
+	//rx = 0; ry = 0; rz = 0;
 	
 	AxisX[0] = 1; AxisX[1] = 0; AxisX[2] = 0;
 	AxisY[0] = 0; AxisY[1] = 1; AxisY[2] = 0;
@@ -24,7 +26,7 @@ RubixCube::RubixCube(double length)
 
 	len=length;
 	plane.push_back(2);
-	axis.push_back(0);
+	axis.push_back(2);
 	solving,rotating=false;
 	theta=0;
 	dir=0;
@@ -190,6 +192,31 @@ void RubixCube::display_rotation()
 			for(j=0;j<3;j++)
 				c[cubepos[i][j][plane.back()]].display();
 		break;
+
+	case 3:
+		glRotated(angle,1,0,0);
+		for(i = 0 ; i< 3 ; i++)
+			for(j=0;j<3;j++)
+				for(k=0;k<3;k++)
+					c[cubepos[i][j][k]].display();
+		break;
+		
+	case 4:
+		glRotated(angle,0,1,0);
+		for(i = 0 ; i< 3 ; i++)
+			for(j=0;j<3;j++)
+				for(k=0;k<3;k++)
+					c[cubepos[i][j][k]].display();
+		break;
+
+	case 5:
+		glRotated(angle,0,0,1);
+		for(i = 0 ; i< 3 ; i++)
+			for(j=0;j<3;j++)
+				for(k=0;k<3;k++)
+					c[cubepos[i][j][k]].display();
+		break;
+
 	}
 	if(axis.back()==0)
 	{
@@ -203,30 +230,41 @@ void RubixCube::display_rotation()
 		else if(plane.back()==2) glTranslated(0,disp,0);
 		glRotatef(90,1,0,0);
 	}
-	else
+	else if(axis.back()==2)
 	{
 		if(plane.back()==0) glTranslated(0,0,disp);
 		else if(plane.back()==2) glTranslated(0,0,-disp);
+	}
+	else if(axis.back()==3 || axis.back()==4  || axis.back()==5 )
+	{
+		glTranslated(0,0,disp);
+		glTranslated(0,0,-disp);
 	}
 	glColor4f(1,1,1,0.3);
 	glRectd(-(len*2.25),-(len*2.25),(len*2.25),(len*2.25));
 	glPopMatrix();
 }
+void idle();
 void RubixCube::rotation_idle_func()
 {
 	if(rotating)
 	{
 		if(theta>=(double)90)
 		{
-			glutIdleFunc(NULL);
-			rotating=false;
+			//glutIdleFunc(NULL);
+			rotating=false; 
 			theta=0.0;
 			rotate_cube_plane();
 		}
 		else
-			theta+=+5.5;
+			theta+=+10.0;
 		glutPostRedisplay();
 	}
+	else
+	{
+		glutIdleFunc(idle);
+	}
+	
 }
 void RubixCube::set_centre()
 {
@@ -282,32 +320,65 @@ void RubixCube::display()
 			else if(plane.back()==2) glTranslated(0,disp,0);
 			glRotatef(90,1,0,0);
 		}
-		else
+		else if(axis.back()==2)
 		{
 			if(plane.back()==0) glTranslated(0,0,len);
 			else if(plane.back()==2) glTranslated(0,0,-len);
+		}		
+		else if(axis.back()==3)
+		{
+			glTranslated(-disp,0,0);
+			glTranslated(disp,0,0);
+		}		
+		else if(axis.back()==4)
+		{
+			glTranslated(0,-disp,0);
+			glTranslated(0,disp,0);
+		}		
+		else if(axis.back()==5)
+		{
+			glTranslated(0,0,len);
+			glTranslated(0,0,-len);
 		}
 		glColor4f(1,1,1,0.3);
 		glRectd(-(len*2.25),-(len*2.25),(len*2.25),(len*2.25));
 		glPopMatrix();
 		
 		//Dessin du sol :
-		glPushMatrix();
-		glTranslated(-len * 20,0,0);			glRotatef(90,0,1,0);
-		glColor4f(0.5,0.5,0.7,0.5);
-		glRectd(-(len*32.5),-(len*32.5),(len*32.5),(len*32.5));
-		glPopMatrix();
+		//glPushMatrix();
+		//glTranslated(-len * 20,0,0);			glRotatef(90,0,1,0);
+		//glColor4f(0.5,0.5,0.7,0.5);
+		//glRectd(-(len*32.5),-(len*32.5),(len*32.5),(len*32.5));
+		//glPopMatrix();
 	}
 	else
 		display_rotation();
 }
 
 void idle();
+void RubixCube::rotate_rubix()
+{// Case axix.back == 0
+	axis.push_back(3);
+	//int i,k,j;
+	//rotating = true;
+	//plane.push_back(0);
+	//change_pos(dir,cubepos[0][0][0],cubepos[plane.back()][0][1],cubepos[plane.back()][0][2],cubepos[plane.back()][1][0],cubepos[plane.back()][1][1],cubepos[plane.back()][1][2],cubepos[plane.back()][2][0],cubepos[plane.back()][2][1],cubepos[plane.back()][2][2]);
+	//	set_centre();
+	//
+	//plane.push_back(0);
+	//for(j=0;j<3;j++)
+	//	for(k=0;k<3;k++)
+	//		c[cubepos[plane.back()][j][k]].rotate(0,dir);
+	
+
+
+
+}
 void RubixCube::rotate_cube_plane()
 {
 	if(!rotating)
 	{
-		int i,j,k;
+		int i,j,k;int p = 0;
 		if(plane.back()!=0 && plane.back()!=1 && plane.back()!=2)
 			exit(2);
 		switch(axis.back())
@@ -320,6 +391,18 @@ void RubixCube::rotate_cube_plane()
 			break;
 		case 2:
 			change_pos(dir,cubepos[0][0][plane.back()],cubepos[1][0][plane.back()],cubepos[2][0][plane.back()],cubepos[0][1][plane.back()],cubepos[1][1][plane.back()],cubepos[2][1][plane.back()],cubepos[0][2][plane.back()],cubepos[1][2][plane.back()],cubepos[2][2][plane.back()]);
+			break;
+		case 3:
+			for(p = 0 ; p < 3 ; p++)
+			change_pos(dir,cubepos[p][0][0],cubepos[p][0][1],cubepos[p][0][2],cubepos[p][1][0],cubepos[p][1][1],cubepos[p][1][2],cubepos[p][2][0],cubepos[p][2][1],cubepos[p][2][2]);
+			break;
+		case 4:
+			for(p = 0 ; p < 3 ; p++)
+			change_pos(dir,cubepos[2][p][0],cubepos[2][p][1],cubepos[2][p][2],cubepos[1][p][0],cubepos[1][p][1],cubepos[1][p][2],cubepos[0][p][0],cubepos[0][p][1],cubepos[0][p][2]);
+			break;
+		case 5:
+			for(p = 0 ; p < 3 ; p++)
+			change_pos(dir,cubepos[0][0][p],cubepos[1][0][p],cubepos[2][0][p],cubepos[0][1][p],cubepos[1][1][p],cubepos[2][1][p],cubepos[0][2][p],cubepos[1][2][p],cubepos[2][2][p]);
 			break;
 		default:
 			exit(2);
@@ -342,6 +425,24 @@ void RubixCube::rotate_cube_plane()
 			for(i=0;i<3;i++)
 				for(j=0;j<3;j++)
 					c[cubepos[i][j][plane.back()]].rotate(2,dir);
+			break;		
+		case 3:
+			for(i = 0 ; i < 3; i++)
+			for(j=0;j<3;j++)
+				for(k=0;k<3;k++)
+					c[cubepos[i][j][k]].rotate(0,dir);
+			break;		
+		case 4:
+			for(i = 0 ; i < 3; i++)
+			for(j=0;j<3;j++)
+				for(k=0;k<3;k++)
+					c[cubepos[i][j][k]].rotate(1,dir);
+			break;
+		case 5:
+			for(i = 0 ; i < 3; i++)
+			for(j=0;j<3;j++)
+				for(k=0;k<3;k++)
+					c[cubepos[i][j][k]].rotate(2,dir);
 			break;
 		}
 		if(check_solved())
@@ -389,6 +490,21 @@ void RubixCube::keyboard(unsigned char key)
 			axis.push_back(2);
 			keypressed.push_back(0);
 			break;
+		case 'c':
+		case 'C':
+			axis.push_back(3);
+			keypressed.push_back(0);
+			break;
+		case 'u':
+		case 'U':
+			axis.push_back(4);
+			keypressed.push_back(0);
+			break;
+		case 'e':
+		case 'E':
+			axis.push_back(5);
+			keypressed.push_back(0);
+			break;
 		case '1':
 			plane.push_back(0);
 			keypressed.push_back(1);
@@ -425,109 +541,54 @@ void RubixCube::moveX(GLfloat val)
 	x = x + val; 
 }
 
+
 void RubixCube::moveRX(GLfloat val)
 {
-	rx = rx + val; if(rx > 360) rx= rx-360; if(rx < -360) rx= rx+360;
-	//
-	//#define rad(a) ((a)*M_PI/180)
-
-	//float NAxisX[3];
-	//float NAxisY[3];
-	//float NAxisZ[3];
-
-	//NAxisY[0] = AxisY[0]; 
-	//NAxisY[1] = AxisY[1]*cos(-val) - AxisY[2]*sin(-val); 
-	//NAxisY[2] = AxisY[1]*sin(-val) + AxisY[2]*cos(-val);  
-
-	//AxisZ[0] = AxisZ[0]; 
-	//AxisZ[1] = AxisZ[1]*cos(-val) - AxisZ[2]*sin(-val); 
-	//AxisZ[2] = AxisZ[1]*sin(-val) + AxisZ[2]*cos(-val);  
-
-	//	glRotatef((GLfloat)angle, 0,cos(rad(val)),-sin(rad(val)) );
-
-
-
-	////Rotation Ox
-	//NAxisX[0] = AxisX[0] - (AxisX[0] - AxisX[0]);
-	//NAxisX[1] = AxisX[1] - (-AxisX[2]*sin(DEG_TO_RAD*val) + AxisX[1]*cos(DEG_TO_RAD*val) - AxisX[1]);
-	//NAxisX[2] = AxisX[2] - (AxisX[2]*cos(DEG_TO_RAD*val) +  AxisX[1]*sin(DEG_TO_RAD*val) - AxisX[2]);
-	//
-	////Rotation Ox
-	//NAxisY[0] = AxisY[0] - (AxisY[0] - AxisY[0]);
-	//NAxisY[1] = AxisY[1] - (-AxisY[2]*sin(DEG_TO_RAD*val) + AxisY[1]*cos(DEG_TO_RAD*val) - AxisY[1]);
-	//NAxisY[2] = AxisY[2] - (AxisY[2]*cos(DEG_TO_RAD*val) +  AxisY[1]*sin(DEG_TO_RAD*val) - AxisY[2]);
-
-	////Rotation Ox
-	//NAxisZ[0] = AxisZ[0] - (AxisZ[0] - AxisZ[0]);
-	//NAxisZ[1] = AxisZ[1] - (-AxisZ[2]*sin(DEG_TO_RAD*val) + AxisZ[1]*cos(DEG_TO_RAD*val) - AxisZ[1]);
-	//NAxisZ[2] = AxisZ[2] - (AxisZ[2]*cos(DEG_TO_RAD*val) +  AxisZ[1]*sin(DEG_TO_RAD*val) - AxisZ[2]);
-
-	//
-	//for(int i = 0 ; i <3 ; i++)
-	//{
-	//	AxisX[i]=NAxisX[i];
-	//	AxisY[i]=NAxisY[i];
-	//	AxisZ[i]=NAxisZ[i];
-	//}
+	axis.push_back(3);
+	//keypressed.push_back(0);
+	dir=1;
+	//keypressed.push_back(3);
+	rotating=true;
+	rotate_cube_plane();
+	
+	
+	//rx = rx + val; if(rx > 360) rx= rx-360; if(rx < -360) rx= rx+360;
 }
 void RubixCube::moveRY(GLfloat val)
 {
-	ry = ry + val; if(ry > 360) ry= ry-360; if(ry < -360) ry= ry+360;
-	//
-	//	float NAxisX[3];
-	//float NAxisY[3];
-	//float NAxisZ[3];
-	////Rotation Oy
-	//NAxisX[0] = AxisX[0] - (AxisX[0]*cos(DEG_TO_RAD*val) + AxisX[2]*sin(DEG_TO_RAD*val) - AxisX[0]);
-	//NAxisX[1] = AxisX[1] - (AxisX[1] - AxisX[1]);
-	//NAxisX[2] = AxisX[2] - (-AxisX[0]*sin(DEG_TO_RAD*val) +  AxisX[2]*cos(DEG_TO_RAD*val) - AxisX[2]);
-	//
-	////Rotation Oy
-	//NAxisY[0] = AxisY[0] - (AxisY[0]*cos(DEG_TO_RAD*val) + AxisY[2]*sin(DEG_TO_RAD*val) - AxisY[0]);
-	//NAxisY[1] = AxisY[1] - (AxisY[1] - AxisY[1]);
-	//NAxisY[2] = AxisY[2] - (-AxisY[0]*sin(DEG_TO_RAD*val) +  AxisY[2]*cos(DEG_TO_RAD*val) - AxisY[2]);
+		axis.push_back(4);
+		//keypressed.push_back(0);
+		dir=1;
+		//keypressed.push_back(3);
+		rotating=true;
+		rotate_cube_plane();
 
-	////Rotation Oy
-	//NAxisZ[0] = AxisZ[0] - (AxisZ[0]*cos(DEG_TO_RAD*val) + AxisZ[2]*sin(DEG_TO_RAD*val) - AxisZ[0]);
-	//NAxisZ[1] = AxisZ[1] - (AxisZ[1] - AxisZ[1]);
-	//NAxisZ[2] = AxisZ[2] - (-AxisZ[0]*sin(DEG_TO_RAD*val) +  AxisZ[2]*cos(DEG_TO_RAD*val) - AxisZ[2]);
+	//ry = ry + val; if(ry > 360) ry= ry-360; if(ry < -360) ry= ry+360;
 
-	//
-	//for(int i = 0 ; i <3 ; i++)
-	//{
-	//	AxisX[i]=NAxisX[i];
-	//	AxisY[i]=NAxisY[i];
-	//	AxisZ[i]=NAxisZ[i];
-	//}
 }
 void RubixCube::moveRZ(GLfloat val)
 {
-	rz = rz + val; if(rz > 360) rz= rz-360; if(rz < -360) rz= rz+360;
+
+		axis.push_back(5);
+		//keypressed.push_back(0);
+		dir=1;
+		//keypressed.push_back(3);
+		rotating=true;
+		rotate_cube_plane();
 	
-	//float NAxisX[3];
-	//float NAxisY[3];
-	//float NAxisZ[3];
-	////Rotation Oz
-	//NAxisX[0] = AxisX[0] - (AxisX[0]*cos(DEG_TO_RAD*val) + AxisX[1]*sin(DEG_TO_RAD*val) - AxisX[0]);
-	//NAxisX[1] = AxisX[1] - (-AxisX[0]*sin(DEG_TO_RAD*val) + AxisX[1]*cos(DEG_TO_RAD*val) - AxisX[1]);
-	//NAxisX[2] = AxisX[2] - (AxisX[2] - AxisX[2]);
+	//rz = rz + val; if(rz > 360) rz= rz-360; if(rz < -360) rz= rz+360;
+	
+}
 
-	////Rotation Oz
-	//NAxisY[0] = AxisY[0] - (AxisY[0]*cos(DEG_TO_RAD*val) + AxisY[1]*sin(DEG_TO_RAD*val) - AxisY[0]);
-	//NAxisY[1] = AxisY[1] - (-AxisY[0]*sin(DEG_TO_RAD*val) + AxisY[1]*cos(DEG_TO_RAD*val) - AxisY[1]);
-	//NAxisY[2] = AxisY[2] - (AxisY[2] - AxisY[2]);
+void RubixCube::moveRUF()
+{
+	plane.push_back(2);
+	keypressed.push_back(1);
 
-	////Rotation Oz
-	//NAxisZ[0] = AxisZ[0] - (AxisZ[0]*cos(DEG_TO_RAD*val) + AxisZ[1]*sin(DEG_TO_RAD*val) - AxisZ[0]);
-	//NAxisZ[1] = AxisZ[1] - (-AxisZ[0]*sin(DEG_TO_RAD*val) + AxisZ[1]*cos(DEG_TO_RAD*val) - AxisZ[1]);
-	//NAxisZ[2] = AxisZ[2] - (AxisZ[2] - AxisZ[2]);
-
-	//for(int i = 0 ; i <3 ; i++)
-	//{
-	//	AxisX[i]=NAxisX[i];
-	//	AxisY[i]=NAxisY[i];
-	//	AxisZ[i]=NAxisZ[i];
-	//}
+	dir=1;
+	keypressed.push_back(3);
+	rotating=true;
+	rotate_cube_plane();
 }
 
 void RubixCube::reinit()

@@ -427,7 +427,8 @@ void processNormalKeys(unsigned char key, int x, int y);
 
 
 void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int & b2, int & c0, int & c1, int & c2)
-{
+{//change_pos(dir,cubepos[plane.back()][0][0],cubepos[plane.back()][0][1],cubepos[plane.back()][0][2],cubepos[plane.back()][1][0],cubepos[plane.back()][1][1],cubepos[plane.back()][1][2],cubepos[plane.back()][2][0],cubepos[plane.back()][2][1],cubepos[plane.back()][2][2]);
+
 	int temp;
 	if (dir)
 	{
@@ -493,9 +494,9 @@ void key(unsigned char key,int x ,int y)
 		break;
 	case '.': case '>':
 	case ',': case '<':
-	case 'x': case 'X':
-	case 'y': case 'Y':
-	case 'z': case 'Z':
+	case 'x': case 'X':	case 'c': case 'C':
+	case 'y': case 'Y':	case 'u': case 'U':
+	case 'z': case 'Z':	case 'e': case 'E':
 	case '1': case '2': case '3':
 		r.keyboard(key);
 		glutPostRedisplay();
@@ -581,8 +582,7 @@ int redo = 0; int numberBeforeRedo = 40; // Ces variables permette de ne pas ref
 void idle()
 {
 	r.rotation_idle_func();
-
-
+	//cout << "Tour "<<endl;
 		// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
 	//while(keyb != 'q' && keyb != 'Q') {
 			d=clock();
@@ -637,11 +637,11 @@ void idle()
 			debut = clock();
 			tabnewCentre=Tracking(tabCentre);
 			fin = clock(); 
-				//cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+			//cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 			debut = clock();
 			DrawCentre(tabnewCentre);
 			fin = clock(); 
-				//cout<<"				   draw : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+			//cout<<"				   draw : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 			//IplImage* flipped;
 			cvFlip(image,image,-1); // Effet miroir sur l'image de la camera a decommenter quand le logiciel sera fini pour avoir un affichage ergonomique
 			cvShowImage("GeckoGeek Color Tracking", image);
@@ -653,7 +653,7 @@ void idle()
 			//r.display_rotation();
 			//r.moveRX(0.5);
 			interprete.launch(tabCentre,tabnewCentre);
-
+			//cout << "Apres launch" << endl;
 
 			//FIN INTERPRETATION
 
@@ -699,7 +699,8 @@ int main( int argc, char * argv[])
 	//debut = clock();
 	
     // Ouvrir le flux vidéo
-    capture = cvCreateCameraCapture(CV_CAP_ANY);
+    //capture = cvCreateCameraCapture(CV_CAP_ANY);
+	capture = cvCreateCameraCapture(2);
 	
     // Vérifier si l'ouverture du flux est ok
     if (!capture) {

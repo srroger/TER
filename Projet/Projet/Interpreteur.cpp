@@ -31,7 +31,7 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 	toleranceIdle = 20;
 
 	sensiRot =0.1;
-	cranRotation = 10;
+	cranRotation = 90;
 	couleurTrouveePred=RIEN;
 
 	seuilCote = 15;
@@ -175,13 +175,20 @@ void Interpreteur::rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentr
 	// Rouge -> Rotation Face
 	// Bleu -> Rotation lateral
 	// Vert  -> Rotation bas
+	if( tabNewCentre.size() == 2 && couleur[ROUGE] && couleurNew[ROUGE] && couleur[VERT] && couleurNew[VERT])
+	{
+		cout << "Va faire rotationuneface" <<endl; 
+		rotationUneFace();
+	}
+	else
+	{
 	if(couleur[ROUGE] && couleurNew[ROUGE])
 		rotationFace();
 	if(couleur[BLEU] && couleurNew[BLEU])
 		rotationCote();
 	if( couleur[VERT] && couleurNew[VERT])
 		rotationBas();
-
+	}
 }
 
 
@@ -229,6 +236,21 @@ bool Interpreteur::rotationCote()//vector<Centre> tabCentre, vector<Centre> tabN
 	return true;
 }
 
+
+bool Interpreteur::rotationUneFace()
+{
+	r->moveRUF();
+	//cout<<"bleu"<<endl;
+	//couleurTrouveePred=BLEU;
+	cptRotation++; 
+	if(cptRotation*cranRotation >= maxRotation){
+		faireRotation=false; 
+		couleurTrouveePred=RIEN;
+		// la rotation de 90 a ete faite
+	}
+	return true;
+}
+
 void Interpreteur::launch(vector<Centre> tabCentre, vector<Centre> tabNewCentre){
 
 	if( tabNewCentre.size() == tabCentre.size())
@@ -250,7 +272,7 @@ void Interpreteur::launch(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 					}  
 				break;}
 		case 1: {if(faireRotation){ rotation(tabCentre,tabNewCentre);} break;}
-		case 2: {if(tabCentre[0].couleurFacile == ROUGE ) translation(0); else if(tabCentre[1].couleurFacile == ROUGE) translation(1); break;}
+		case 2: {if(faireRotation ){ rotation(tabCentre,tabNewCentre);} break;}
 		case 3:	{if(tabCentre[0].couleurFacile == ROUGE ) translation(0); else if(tabCentre[1].couleurFacile == ROUGE) translation(1); else if (tabCentre[2].couleurFacile == ROUGE ) translation(2);  break;}
 		//case 1 :{ if(tabCentre[0].couleurFacile == ROUGE ) translation(); break;} // N effectue la translation que si c'est un marqueur rouge
 		//case 2 : {rotation(tabCentre,tabNewCentre); break;}
