@@ -75,6 +75,13 @@ private:
 	bool rotationFace();
 	bool rotationCote();
 	bool rotationBas();
+	bool rotationUneFace();
+
+	//Peut être a supprimer dans un futur proche
+	void moveRX(GLfloat val);
+	void moveRY(GLfloat val);
+	void moveRZ(GLfloat val);
+
 };
 
 #endif

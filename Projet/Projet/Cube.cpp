@@ -17,11 +17,11 @@ void Cube::set_color(int color)
 	switch (color)
 	{
 	//case 0: glColor3f(0, 0, 0); break; // noir
-	case 1: glColor3f(0, 0.8, 0); break; // bleu
+	case 4: glColor3f(0, 0.8, 0); break; // bleu
 	case 2: glColor3f(1, 0, 0); break; // rouge
-	case 3: glColor3f(1, 0.5, 0); break; // Jaune
-	case 4: glColor3f(0, 0, 1); break; // vert
-	case 5: glColor3f(1, 1, 0); break; //orange
+	case 5: glColor3f(1, 0.5, 0); break; // Jaune
+	case 1: glColor3f(0, 0, 1); break; // vert
+	case 3: glColor3f(1, 1, 0); break; //orange
 	case 6: glColor3f(1, 1, 1); break; // blanc
 	default: glColor3f(0, 0, 0); // noir
 	}
@@ -65,40 +65,29 @@ void Cube::display()
 	glEnd();
 	glPopMatrix();
 }
-void Cube::rotate(int axis, int dir)
+
+void Cube::rotate(int axis,int dir)
 {
 	int temp;
-	switch (axis)
+	switch(axis)
 	{
-	case 0:
-		if (dir)
-		{
-			temp = color[0]; color[0] = color[4]; color[4] = color[3]; color[3] = color[1]; color[1] = temp;
-		}
-		else
-		{
-			temp = color[0]; color[0] = color[1]; color[1] = color[3]; color[3] = color[4]; color[4] = temp;
-		}
+	case 0:/*X-axis*/
+		if(dir)/*Clock-Wise*/
+		{ temp=color[0]; color[0]=color[4]; color[4]=color[3]; color[3]=color[1]; color[1]=temp; }
+		else/*Anti-Clock-Wise*/
+		{ temp=color[0]; color[0]=color[1]; color[1]=color[3]; color[3]=color[4]; color[4]=temp; }
 		break;
-	case 1:
-		if (dir)
-		{
-			temp = color[0]; color[0] = color[2]; color[2] = color[3]; color[3] = color[5]; color[5] = temp;
-		}
-		else
-		{
-			temp = color[0]; color[0] = color[5]; color[5] = color[3]; color[3] = color[2]; color[2] = temp;
-		}
+	case 1:/*Y-axis*/
+		if(dir)/*Clock-Wise*/
+		{ temp=color[0]; color[0]=color[2]; color[2]=color[3]; color[3]=color[5]; color[5]=temp; }
+		else/*Anti-Clock-Wise*/
+		{ temp=color[0]; color[0]=color[5]; color[5]=color[3]; color[3]=color[2]; color[2]=temp; }
 		break;
-	case 2:
-		if (dir)
-		{
-			temp = color[1]; color[1] = color[5]; color[5] = color[4]; color[4] = color[2]; color[2] = temp;
-		}
-		else
-		{
-			temp = color[1]; color[1] = color[2]; color[2] = color[4]; color[4] = color[5]; color[5] = temp;
-		}
+	case 2:/*Z-axis*/
+		if(dir)/*Clock-Wise*/
+		{ temp=color[1]; color[1]=color[5]; color[5]=color[4]; color[4]=color[2]; color[2]=temp; }
+		else/*Anti-Clock-Wise*/
+		{ temp=color[1]; color[1]=color[2]; color[2]=color[4]; color[4]=color[5]; color[5]=temp; }
 		break;
 	}
 }

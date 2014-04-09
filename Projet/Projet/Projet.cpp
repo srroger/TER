@@ -141,8 +141,9 @@ vector<Centre> detection(IplImage* mask){
 	stack<CvPoint> pile;
 	
 	//ICI SOUCIS label ????!!!!!
-	for(int  x=0; x<bin->width && label<6;++x)
-		for(int y=0;y<bin->height && label <6;++y){
+	// plus 6 mais 3
+	for(int  x=0; x<bin->width && label<3;++x)
+		for(int y=0;y<bin->height && label <3;++y){
 			if( ((uchar *)(bin->imageData + y*bin->widthStep))[x]  == 255  ){ // (uchar *)(mask->imageData + y*mask->widthStep))[x] 
 					P.x=x;
 					P.y=y;
@@ -251,12 +252,24 @@ void DrawCentre(vector<Centre> TabCentre){
 
 	for(int i=0;i < TabCentre.size();i++)
 	{
-		if( ((TabCentre[i].couleur.val[0]>=hR-tolerance && TabCentre[i].couleur.val[1]>=sR-tolerance)&&(TabCentre[i].couleur.val[0]<=hR+tolerance && TabCentre[i].couleur.val[1]<=sR+tolerance))
-				||((TabCentre[i].couleur.val[0]>=hB-tolerance && TabCentre[i].couleur.val[1]>=sB-tolerance)&&(TabCentre[i].couleur.val[0]<=hB+tolerance && TabCentre[i].couleur.val[1]<=sB+tolerance))
-				||((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) )
+		/*if( ((TabCentre[i].couleur.val[0]>=hR-tolerance && TabCentre[i].couleur.val[1]>=sR-tolerance)&&(TabCentre[i].couleur.val[0]<=hR+tolerance && TabCentre[i].couleur.val[1]<=sR+tolerance))
+			||((TabCentre[i].couleur.val[0]>=hB-tolerance && TabCentre[i].couleur.val[1]>=sB-tolerance)&&(TabCentre[i].couleur.val[0]<=hB+tolerance && TabCentre[i].couleur.val[1]<=sB+tolerance))
+			||((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) )
 		{
+		
 			cvDrawCircle(image, TabCentre[i].point, 5, CV_RGB(0, 0, 0), -1);
 		}
+		*/
+
+		if( ((TabCentre[i].couleur.val[0]>=hR-tolerance && TabCentre[i].couleur.val[1]>=sR-tolerance)&&(TabCentre[i].couleur.val[0]<=hR+tolerance && TabCentre[i].couleur.val[1]<=sR+tolerance)))
+			cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(255, 0, 0), 2);
+			
+		if(((TabCentre[i].couleur.val[0]>=hB-tolerance && TabCentre[i].couleur.val[1]>=sB-tolerance)&&(TabCentre[i].couleur.val[0]<=hB+tolerance && TabCentre[i].couleur.val[1]<=sB+tolerance)))
+			cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(0, 0, 255), 2);
+
+		if(((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) )
+			cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(0, 255, 0), 2);
+
 	}
 }
 
@@ -378,6 +391,27 @@ void getObjectColor(int event, int x, int y, int flags, void *param = NULL) {
  
 }
  
+/*void Inverse(){
+	IplImage* ImgInv= cvCloneImage(image);//cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1);
+	CvScalar pixel1;
+	CvScalar pixel2;
+	int w=image->width;
+	for (int y=0; y<image->height; ++y)
+	{
+		for (int x=0;x<image->width; ++x){
+			pixel1= cvGet2D(image,y,x);
+			for (int k = 0; k < image->nChannels; ++k){
+				pixel2.val[k] = pixel1.val[k];
+			}
+			cvSet2D(ImgInv,y,w-1 - x,pixel2);//cout<<pixel<<endl;
+		}
+	 }
+	  //cvShowImage("ImgInv", ImgInv);
+	 image=cvCloneImage(ImgInv);
+	 cvReleaseImage(&ImgInv);
+}*/
+
+
 
 
 
@@ -406,7 +440,8 @@ void processNormalKeys(unsigned char key, int x, int y);
 
 
 void change_pos(int dir, int & a0, int & a1, int & a2, int & b0, int & b1, int & b2, int & c0, int & c1, int & c2)
-{
+{//change_pos(dir,cubepos[plane.back()][0][0],cubepos[plane.back()][0][1],cubepos[plane.back()][0][2],cubepos[plane.back()][1][0],cubepos[plane.back()][1][1],cubepos[plane.back()][1][2],cubepos[plane.back()][2][0],cubepos[plane.back()][2][1],cubepos[plane.back()][2][2]);
+
 	int temp;
 	if (dir)
 	{
@@ -447,6 +482,47 @@ void reshape(int w, int h)
 	glLoadIdentity();
 	gluPerspective(70, (GLfloat)w / (GLfloat)h, 1, 200);
 	glMatrixMode(GL_MODELVIEW);
+}
+
+
+void key(unsigned char key,int x ,int y)
+{
+	switch(key)
+	{
+	case 'R':
+	case 'r':
+		v.reset_view(45,45,20,10);
+		break;
+	case 27:
+		//if(conformationbox(L"Exit?",L"Do You Want To Exit?"))
+			exit(0);
+		break;
+	case 'n':
+	case 'N':
+		//if(conformationbox(L"New Game?",L"Do You Want To Start A New Game?"))
+		//{
+			r.randomize();
+			glutPostRedisplay();
+		//}
+		break;
+	case '.': case '>':
+	case ',': case '<':
+	case 'x': case 'X':	case 'c': case 'C':
+	case 'y': case 'Y':	case 'u': case 'U':
+	case 'z': case 'Z':	case 'e': case 'E':
+	case '1': case '2': case '3':
+		r.keyboard(key);
+		glutPostRedisplay();
+		break;
+	case 's':
+	case 'S':
+		if(!r.solving)
+			//if(!conformationbox(L"Solve Cube?",L"Do You Want The Computer To Solve The Cube?"))
+				break;
+		r.keyboard(key);
+		glutPostRedisplay();
+		break;
+	}
 }
 
 void specialkey(int key, int x, int y)
@@ -504,7 +580,7 @@ void on_opengl(int argc, char * argv[]) {
 	glutCreateWindow("Rubik's Cube"); 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
-	glutKeyboardFunc(processNormalKeys);
+	glutKeyboardFunc(key);
 	glutSpecialFunc(specialkey);
 	glutIdleFunc(idle);
 	init();
@@ -518,9 +594,8 @@ void on_opengl(int argc, char * argv[]) {
 int redo = 0; int numberBeforeRedo = 40; // Ces variables permette de ne pas refaire de binarisation enchainer
 void idle()
 {
-//	r.rotation_idle_func();
-
-
+	r.rotation_idle_func();
+	//cout << "Tour "<<endl;
 		// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
 	//while(keyb != 'q' && keyb != 'Q') {
 			d=clock();
@@ -552,20 +627,25 @@ void idle()
 		{
 			
 			redo++;
-			//cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
-			if( (tabCentre.size()<6 && tabCentre.size()!=1 && tabCentre.size()!=2  && tabCentre.size()!=3 && redo >= numberBeforeRedo) ){ //!!!!!
+			cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
+			/// avant c'etait 6 mais comme on fait tout avec 3 doigts
+			if( (tabCentre.size()<3 && tabCentre.size()!=1 && tabCentre.size()!=2  && tabCentre.size()!=3 && redo >= numberBeforeRedo)|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){ //!!!!!
 			//if( tabCentre.size()<6 && tabCentre.size()!=1){ //!!!!!
-				debut = clock();
+				//debut = clock();
 				imageBis=binarisation(image);
-				fin = clock(); 
-				//cout<<" 2   binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-				debut = clock();
+				//fin = clock(); 
+				//cout<<" 2   binarisation : "<<endl;//<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+				//debut = clock();
 				tabCentre=detection(imageBis);
 				DrawCentre(tabCentre);
-				fin = clock(); 
+				//fin = clock(); 
 				//cout<<" 2   detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
 				redo =0;
+
 			}
+
+
+
 
 			// If there is no image, we exit the loop
 			//if(!image)
@@ -575,11 +655,16 @@ void idle()
 			debut = clock();
 			tabnewCentre=Tracking(tabCentre);
 			fin = clock(); 
-				//cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-			debut = clock();
+			cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+
+			
+
+
+
+			//debut = clock();
 			DrawCentre(tabnewCentre);
-			fin = clock(); 
-				//cout<<"				   draw : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+			//fin = clock(); 
+			//cout<<"				   draw : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 			//IplImage* flipped;
 			cvFlip(image,image,-1); // Effet miroir sur l'image de la camera a decommenter quand le logiciel sera fini pour avoir un affichage ergonomique
 			cvShowImage("GeckoGeek Color Tracking", image);
@@ -591,7 +676,7 @@ void idle()
 			//r.display_rotation();
 			//r.moveRX(0.5);
 			interprete.launch(tabCentre,tabnewCentre);
-
+			//cout << "Apres launch" << endl;
 
 			//FIN INTERPRETATION
 
@@ -602,6 +687,7 @@ void idle()
 			}
 
 		
+			
 			// On attend 10ms
 			keyb = cvWaitKey(5);
 			f=clock();
@@ -637,7 +723,8 @@ int main( int argc, char * argv[])
 	//debut = clock();
 	
     // Ouvrir le flux vidéo
-    capture = cvCreateCameraCapture(CV_CAP_ANY);// CV_CAP_ANY
+    capture = cvCreateCameraCapture(CV_CAP_ANY);
+	//capture = cvCreateCameraCapture(2);
 	
     // Vérifier si l'ouverture du flux est ok
     if (!capture) {
