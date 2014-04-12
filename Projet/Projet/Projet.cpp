@@ -78,6 +78,50 @@ static	IplImage *imageBis;
 static	vector<Centre> tabCentre;
 
 static Interpreteur interprete;
+
+
+bool preBin(IplImage* image) {
+ 
+    CvScalar pixel; // element valeur d'un pixel
+    IplImage *mask;
+    IplConvKernel *kernel;
+	
+    // Create the mask &initialize it to white (no color detected)
+    mask = cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1); //image->depth = type de donnée de //l'image
+
+	int x = 0;int pasX = hsv->width / 7 ;
+	int y = 0;int pasY = hsv->height / 20;
+	///cout<<hsv->width<<"  "<<hsv->height<<endl;
+	bool res = false;
+    // We create the mask
+	while (x<hsv->width && !res)
+    {
+		y =0;
+        while (y<hsv->height && !res )
+        {
+            pixel=cvGet2D(hsv, y, x);
+            if ( ((pixel.val[0]>=hR-tolerance && pixel.val[1]>=sR-tolerance)&&(pixel.val[0]<=hR+tolerance && pixel.val[1]<=sR+tolerance))
+				||((pixel.val[0]>=hB-tolerance && pixel.val[1]>=sB-tolerance)&&(pixel.val[0]<=hB+tolerance && pixel.val[1]<=sB+tolerance))
+				||((pixel.val[0]>=hG-tolerance && pixel.val[1]>=sG-1.5*tolerance)&&(pixel.val[0]<=hG+tolerance && pixel.val[1]<=sG+1.5*tolerance)) )
+    //        if ( ((pixel.val[0]>=hR-tolerance && pixel.val[1]>=toleranceSaturationR)&&(pixel.val[0]<=hR+tolerance ))
+				//||((pixel.val[0]>=hB-tolerance && pixel.val[1]>=toleranceSaturationB)&&(pixel.val[0]<=hB+tolerance ))
+				//||((pixel.val[0]>=hG-tolerance && pixel.val[1]>=toleranceSaturationG)&&(pixel.val[0]<=hG+tolerance )) )
+            {  //pixel.val[0]=255; cvSet2D(mask, y, x,pixel);
+				res =true;
+            }
+            else {
+                //pixel.val[0]=0; cvSet2D(mask, y, x,pixel);
+			}
+
+			y= y + pasY;
+        }
+
+		x = x + pasX;
+    }
+	 
+	return res;
+}
+
 /*---------------------------------------------
 /*
  * Transform the image into a two colored image, one color for the color we want to track, another color for the others colors
@@ -522,6 +566,10 @@ void key(unsigned char key,int x ,int y)
 		r.keyboard(key);
 		glutPostRedisplay();
 		break;
+	case 'i':
+			r = RubixCube((double)2);
+			cout<<"Fait espace" <<endl;
+			break;
 	}
 }
 
@@ -591,7 +639,7 @@ void on_opengl(int argc, char * argv[]) {
 
 
 
-int redo = 0; int numberBeforeRedo = 40; // Ces variables permette de ne pas refaire de binarisation enchainer
+int redo = 0; int numberBeforeRedo = 10; // Ces variables permette de ne pas refaire de binarisation enchainer
 void idle()
 {
 	r.rotation_idle_func();
@@ -629,8 +677,10 @@ void idle()
 			redo++;
 			cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
 			/// avant c'etait 6 mais comme on fait tout avec 3 doigts
-			if( (tabCentre.size()<3 && tabCentre.size()!=1 && tabCentre.size()!=2  && tabCentre.size()!=3 && redo >= numberBeforeRedo)|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){ //!!!!!
+			//if( (tabCentre.size()==0 && redo >= numberBeforeRedo)|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){ //!!!!!
+			if( (tabCentre.size()==0 && preBin(image) )|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){ //!!!!!
 			//if( tabCentre.size()<6 && tabCentre.size()!=1){ //!!!!!
+				cout << "Fait binarisation \n";
 				//debut = clock();
 				imageBis=binarisation(image);
 				//fin = clock(); 
