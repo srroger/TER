@@ -21,6 +21,7 @@
 #include<stack>
 
 
+
 #include <cmath>
 #include "cstdlib"
 #include "ctime"
@@ -50,6 +51,7 @@ int hB = 116 ,sB = 177 ,vB = 0;
 
 bool initialisation = true; int cptInit = 0; bool say = true; // Variable pour l'initialisation des couleurs au debut du programme
 double debut, fin; 
+int nbBadColor=0;
 
 int Xmax=0,Xmin=1000,Ymax=0,Ymin=1000;
 /**
@@ -316,15 +318,11 @@ void DrawCentre(vector<Centre> TabCentre){
 
 
 		if( !((TabCentre[i].couleur.val[0]>=hR-tolerance && TabCentre[i].couleur.val[1]>=sR-tolerance)&&(TabCentre[i].couleur.val[0]<=hR+tolerance && TabCentre[i].couleur.val[1]<=sR+tolerance))
-			//cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(255, 0, 0), 2);
-			
 		 && !((TabCentre[i].couleur.val[0]>=hB-tolerance && TabCentre[i].couleur.val[1]>=sB-tolerance)&&(TabCentre[i].couleur.val[0]<=hB+tolerance && TabCentre[i].couleur.val[1]<=sB+tolerance))
-			//cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(0, 0, 255), 2);
-
-		&& !((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) )
+		&& !((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) ){
 			cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(120, 120, 120), 2);
-
-
+			nbBadColor++;
+		}
 	}
 }
 
@@ -691,7 +689,7 @@ void idle()
 
 		// voir lequel des deux est le mieux!!!
 				//if( (tabCentre.size()==0 && redo >= numberBeforeRedo)|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){ //!!!!!
-		if( (tabCentre.size()==0 && preBin(image) )|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){
+		if( (tabCentre.size()==0 && preBin(image) )|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 || (tabCentre.size()==nbBadColor)){
 			cout << "Fait binarisation \n";
 					//debut = clock();
 			imageBis=binarisation(image);
@@ -703,6 +701,7 @@ void idle()
 				
 						//fin = clock(); 
 						//cout<<" 2   detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
+			nbBadColor=0;
 			redo=0;
 		}
 
