@@ -314,6 +314,17 @@ void DrawCentre(vector<Centre> TabCentre){
 		if(((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) )
 			cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(0, 255, 0), 2);
 
+
+		if( !((TabCentre[i].couleur.val[0]>=hR-tolerance && TabCentre[i].couleur.val[1]>=sR-tolerance)&&(TabCentre[i].couleur.val[0]<=hR+tolerance && TabCentre[i].couleur.val[1]<=sR+tolerance))
+			//cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(255, 0, 0), 2);
+			
+		 && !((TabCentre[i].couleur.val[0]>=hB-tolerance && TabCentre[i].couleur.val[1]>=sB-tolerance)&&(TabCentre[i].couleur.val[0]<=hB+tolerance && TabCentre[i].couleur.val[1]<=sB+tolerance))
+			//cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(0, 0, 255), 2);
+
+		&& !((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) )
+			cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(120, 120, 120), 2);
+
+
 	}
 }
 
@@ -639,114 +650,106 @@ void on_opengl(int argc, char * argv[]) {
 
 
 
-int redo = 0; int numberBeforeRedo = 10; // Ces variables permette de ne pas refaire de binarisation enchainer
+int redo = 0; int numberBeforeRedo = 5; // Ces variables permette de ne pas refaire de binarisation enchainer
 void idle()
 {
 	r.rotation_idle_func();
-	//cout << "Tour "<<endl;
-		// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
-	//while(keyb != 'q' && keyb != 'Q') {
-			d=clock();
-		// On récupère une image
-		image = cvQueryFrame(capture); 
-		hsv = cvCloneImage(image);
-		cvCvtColor(image, hsv, CV_BGR2HSV);
+			//cout << "Tour "<<endl;
+			// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
+			//while(keyb != 'q' && keyb != 'Q') {
+			
+	// On récupère une image
+	image = cvQueryFrame(capture); 
+	hsv = cvCloneImage(image);
+	cvCvtColor(image, hsv, CV_BGR2HSV);
 
-		if(initialisation)
+	if(initialisation)
+	{
+		if(say)
+		switch (cptInit)
 		{
-			if(say)
-			switch (cptInit)
-			{
-			case 0 : cout << "Cliquez sur le Rouge" <<endl  ;
-				say = false; break; 
-			case 1 : cout << "Cliquez sur le Vert" <<endl ;
-				say = false; break; ; 
-			case 2 : cout << "Cliquez sur le Bleu" <<endl  ;
-				say = false;  break; ; 
-			case 3 : initialisation = false ;
-			}
-			cvFlip(image,image,-1); 
-			cvShowImage("GeckoGeek Color Tracking", image);
-		
-
-			cvReleaseImage(&hsv);
+		case 0 : cout << "Cliquez sur le Rouge" <<endl  ;
+			say = false; break; 
+		case 1 : cout << "Cliquez sur le Vert" <<endl ;
+			say = false; break; ; 
+		case 2 : cout << "Cliquez sur le Bleu" <<endl  ;
+			say = false;  break; ; 
+		case 3 : initialisation = false ;
 		}
-		else
-		{
-			
-			redo++;
-			cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
-			/// avant c'etait 6 mais comme on fait tout avec 3 doigts
-			//if( (tabCentre.size()==0 && redo >= numberBeforeRedo)|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){ //!!!!!
-			if( (tabCentre.size()==0 && preBin(image) )|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){ //!!!!!
-			//if( tabCentre.size()<6 && tabCentre.size()!=1){ //!!!!!
-				cout << "Fait binarisation \n";
-				//debut = clock();
-				imageBis=binarisation(image);
-				//fin = clock(); 
-				//cout<<" 2   binarisation : "<<endl;//<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-				//debut = clock();
-				tabCentre=detection(imageBis);
-				DrawCentre(tabCentre);
-				//fin = clock(); 
-				//cout<<" 2   detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
-				redo =0;
-
-			}
-
-
-
-
-			// If there is no image, we exit the loop
-			//if(!image)
-			//	continue;
-		
-			vector<Centre> tabnewCentre;
-			debut = clock();
-			tabnewCentre=Tracking(tabCentre);
-			fin = clock(); 
-			cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-
-			
-
-
-
-			//debut = clock();
-			DrawCentre(tabnewCentre);
-			//fin = clock(); 
-			//cout<<"				   draw : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-			//IplImage* flipped;
-			cvFlip(image,image,-1); // Effet miroir sur l'image de la camera a decommenter quand le logiciel sera fini pour avoir un affichage ergonomique
-			cvShowImage("GeckoGeek Color Tracking", image);
+		cvFlip(image,image,-1); 
+		cvShowImage("GeckoGeek Color Tracking", image);
 		
 
-			cvReleaseImage(&hsv);
+		cvReleaseImage(&hsv);
+	}
+	else
+	{
+			
+		redo++;
+		cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
+					/// avant c'etait 6 mais comme on fait tout avec 3 doigts
 
-			// INTERPRETATION
-			//r.display_rotation();
-			//r.moveRX(0.5);
+		// voir lequel des deux est le mieux!!!
+				//if( (tabCentre.size()==0 && redo >= numberBeforeRedo)|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){ //!!!!!
+		if( (tabCentre.size()==0 && preBin(image) )|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){
+			cout << "Fait binarisation \n";
+					//debut = clock();
+			imageBis=binarisation(image);
+					//fin = clock(); 
+					//cout<<" 2   binarisation : "<<endl;//<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+					//debut = clock();
+			tabCentre=detection(imageBis);
+			//DrawCentre(tabCentre);
+				
+						//fin = clock(); 
+						//cout<<" 2   detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
+			redo=0;
+		}
+
+					// If there is no image, we exit the loop
+					//if(!image)
+					//	continue;
+		
+		vector<Centre> tabnewCentre;
+		debut = clock();
+		tabnewCentre=Tracking(tabCentre);
+		fin = clock(); 
+		cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+
+		DrawCentre(tabnewCentre);
+					
+					//IplImage* flipped;
+		cvFlip(image,image,-1); // Effet miroir sur l'image de la camera a decommenter quand le logiciel sera fini pour avoir un affichage ergonomique
+		cvShowImage("GeckoGeek Color Tracking", image);
+		cvReleaseImage(&hsv);
+
+		// INTERPRETATION
+				//r.display_rotation();
+				//r.moveRX(0.5);
+
+		if(tabCentre.size()==tabnewCentre.size() && redo>=2){
+			//DrawCentre(tabnewCentre);
+			cout<<"ok c'est bon!!!!"<<endl;
 			interprete.launch(tabCentre,tabnewCentre);
-			//cout << "Apres launch" << endl;
+					//cout << "Apres launch" << endl;
+		}
+		//FIN INTERPRETATION
 
-			//FIN INTERPRETATION
-
-			//copie du nouveau tableau dans tabCentre
-			tabCentre.clear();
-			for(int i=0;i<tabnewCentre.size();i++){
-				tabCentre.push_back(tabnewCentre[i]);
-			}
+		//copie du nouveau tableau dans tabCentre
+		tabCentre.clear();
+		for(int i=0;i<tabnewCentre.size();i++){
+			tabCentre.push_back(tabnewCentre[i]);
+		}
 
 		
 			
-			// On attend 10ms
-			keyb = cvWaitKey(5);
-			f=clock();
-			//cout<<"  tt : "<<((double)(f-d) / (double) CLOCKS_PER_SEC)<<endl; 
-		}
+		// On attend 10ms
+		keyb = cvWaitKey(5);
+	}
 		
 
 
-	//}
+//}
 		
 	glutPostRedisplay();
 }
