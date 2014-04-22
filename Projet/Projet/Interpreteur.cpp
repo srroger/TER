@@ -175,19 +175,20 @@ void Interpreteur::rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentr
 	// Rouge -> Rotation Face
 	// Bleu -> Rotation lateral
 	// Vert  -> Rotation bas
-	if( tabNewCentre.size() == 2 && couleur[ROUGE] && couleurNew[ROUGE] && couleur[VERT] && couleurNew[VERT])
+	if(((tabCentre.size() == 0 && tabNewCentre.size() == 2) || (tabCentre.size() == 2 && tabNewCentre.size() == 2)) && couleur[ROUGE] && couleurNew[ROUGE] && couleur[VERT] && couleurNew[VERT])
 	{
 		cout << "Va faire rotationuneface" <<endl; 
 		rotationUneFace();
 	}
-	else
+	else if(tabCentre.size() == 1)
 	{
-	if(couleur[ROUGE] && couleurNew[ROUGE])
-		rotationFace();
-	if(couleur[BLEU] && couleurNew[BLEU])
-		rotationCote();
-	if( couleur[VERT] && couleurNew[VERT])
-		rotationBas();
+		cout << " taille de 1" <<endl; 
+		if(couleur[ROUGE] && couleurNew[ROUGE])
+			rotationFace();
+		if(couleur[BLEU] && couleurNew[BLEU])
+			rotationCote();
+		if( couleur[VERT] && couleurNew[VERT])
+			rotationBas();
 	}
 }
 
@@ -197,7 +198,7 @@ bool Interpreteur::rotationBas()//vector<Centre> tabCentre, vector<Centre> tabNe
 {
 	couleurTrouveePred=VERT;
 	cout<<"vert"<<endl;
-	r->moveRY(cranRotation); cptRotation++;
+	r->moveRY(); cptRotation++;
 
 	if(cptRotation*cranRotation >= maxRotation){
 		faireRotation=false; 
@@ -212,7 +213,7 @@ bool Interpreteur::rotationBas()//vector<Centre> tabCentre, vector<Centre> tabNe
 bool Interpreteur::rotationFace()
 {	cout<<"Rouge"<<endl;
 	couleurTrouveePred=ROUGE;
-	r->moveRX(cranRotation); cptRotation++;
+	r->moveRX(); cptRotation++;
 	if(cptRotation*cranRotation >= maxRotation){
 		faireRotation=false;
 		couleurTrouveePred=RIEN;
@@ -226,7 +227,7 @@ bool Interpreteur::rotationCote()//vector<Centre> tabCentre, vector<Centre> tabN
 {
 	cout<<"bleu"<<endl;
 	couleurTrouveePred=BLEU;
-	r->moveRZ(cranRotation); // on fait une rotation
+	r->moveRZ(); // on fait une rotation
 	cptRotation++; 
 	if(cptRotation*cranRotation >= maxRotation){
 		faireRotation=false; 
@@ -242,6 +243,7 @@ bool Interpreteur::rotationUneFace()
 	r->moveRUF();
 	//cout<<"bleu"<<endl;
 	//couleurTrouveePred=BLEU;
+	cout<<"fait"<<endl;
 	cptRotation++; 
 	if(cptRotation*cranRotation >= maxRotation){
 		faireRotation=false; 
@@ -302,21 +304,23 @@ vector<CvPoint> Interpreteur::direction(vector<Centre> tabCentre, vector<Centre>
 }
 
 
-
-
+/**
+//Rouge
 void Interpreteur::moveRX(GLfloat val)
 {
 	v->Rotation(DROITE,val); //Ca c'est pas sur
 }
+//Vert
 void Interpreteur::moveRY(GLfloat val)
 {
 	v->Rotation(GAUCHE,val);
 }
+//Bleu
 void Interpreteur::moveRZ(GLfloat val)
 {
 	v->Rotation(HAUT,val);
 }
-
+*/
 
 
 

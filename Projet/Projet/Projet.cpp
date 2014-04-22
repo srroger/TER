@@ -21,6 +21,7 @@
 #include<stack>
 
 
+
 #include <cmath>
 #include "cstdlib"
 #include "ctime"
@@ -50,6 +51,7 @@ int hB = 116 ,sB = 177 ,vB = 0;
 
 bool initialisation = true; int cptInit = 0; bool say = true; // Variable pour l'initialisation des couleurs au debut du programme
 double debut, fin; 
+int nbBadColor=0;
 
 int Xmax=0,Xmin=1000,Ymax=0,Ymin=1000;
 /**
@@ -78,6 +80,50 @@ static	IplImage *imageBis;
 static	vector<Centre> tabCentre;
 
 static Interpreteur interprete;
+
+
+bool preBin(IplImage* image) {
+ 
+    CvScalar pixel; // element valeur d'un pixel
+    IplImage *mask;
+    IplConvKernel *kernel;
+	
+    // Create the mask &initialize it to white (no color detected)
+    mask = cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1); //image->depth = type de donnée de //l'image
+
+	int x = 0;int pasX = hsv->width / 7 ;
+	int y = 0;int pasY = hsv->height / 20;
+	///cout<<hsv->width<<"  "<<hsv->height<<endl;
+	bool res = false;
+    // We create the mask
+	while (x<hsv->width && !res)
+    {
+		y =0;
+        while (y<hsv->height && !res )
+        {
+            pixel=cvGet2D(hsv, y, x);
+            if ( ((pixel.val[0]>=hR-tolerance && pixel.val[1]>=sR-tolerance)&&(pixel.val[0]<=hR+tolerance && pixel.val[1]<=sR+tolerance))
+				||((pixel.val[0]>=hB-tolerance && pixel.val[1]>=sB-tolerance)&&(pixel.val[0]<=hB+tolerance && pixel.val[1]<=sB+tolerance))
+				||((pixel.val[0]>=hG-tolerance && pixel.val[1]>=sG-1.5*tolerance)&&(pixel.val[0]<=hG+tolerance && pixel.val[1]<=sG+1.5*tolerance)) )
+    //        if ( ((pixel.val[0]>=hR-tolerance && pixel.val[1]>=toleranceSaturationR)&&(pixel.val[0]<=hR+tolerance ))
+				//||((pixel.val[0]>=hB-tolerance && pixel.val[1]>=toleranceSaturationB)&&(pixel.val[0]<=hB+tolerance ))
+				//||((pixel.val[0]>=hG-tolerance && pixel.val[1]>=toleranceSaturationG)&&(pixel.val[0]<=hG+tolerance )) )
+            {  //pixel.val[0]=255; cvSet2D(mask, y, x,pixel);
+				res =true;
+            }
+            else {
+                //pixel.val[0]=0; cvSet2D(mask, y, x,pixel);
+			}
+
+			y= y + pasY;
+        }
+
+		x = x + pasX;
+    }
+	 
+	return res;
+}
+
 /*---------------------------------------------
 /*
  * Transform the image into a two colored image, one color for the color we want to track, another color for the others colors
@@ -141,8 +187,9 @@ vector<Centre> detection(IplImage* mask){
 	stack<CvPoint> pile;
 	
 	//ICI SOUCIS label ????!!!!!
-	for(int  x=0; x<bin->width && label<6;++x)
-		for(int y=0;y<bin->height && label <6;++y){
+	// plus 6 mais 3
+	for(int  x=0; x<bin->width && label<3;++x)
+		for(int y=0;y<bin->height && label <3;++y){
 			if( ((uchar *)(bin->imageData + y*bin->widthStep))[x]  == 255  ){ // (uchar *)(mask->imageData + y*mask->widthStep))[x] 
 					P.x=x;
 					P.y=y;
@@ -251,11 +298,30 @@ void DrawCentre(vector<Centre> TabCentre){
 
 	for(int i=0;i < TabCentre.size();i++)
 	{
-		if( ((TabCentre[i].couleur.val[0]>=hR-tolerance && TabCentre[i].couleur.val[1]>=sR-tolerance)&&(TabCentre[i].couleur.val[0]<=hR+tolerance && TabCentre[i].couleur.val[1]<=sR+tolerance))
-				||((TabCentre[i].couleur.val[0]>=hB-tolerance && TabCentre[i].couleur.val[1]>=sB-tolerance)&&(TabCentre[i].couleur.val[0]<=hB+tolerance && TabCentre[i].couleur.val[1]<=sB+tolerance))
-				||((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) )
+		/*if( ((TabCentre[i].couleur.val[0]>=hR-tolerance && TabCentre[i].couleur.val[1]>=sR-tolerance)&&(TabCentre[i].couleur.val[0]<=hR+tolerance && TabCentre[i].couleur.val[1]<=sR+tolerance))
+			||((TabCentre[i].couleur.val[0]>=hB-tolerance && TabCentre[i].couleur.val[1]>=sB-tolerance)&&(TabCentre[i].couleur.val[0]<=hB+tolerance && TabCentre[i].couleur.val[1]<=sB+tolerance))
+			||((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) )
 		{
+		
 			cvDrawCircle(image, TabCentre[i].point, 5, CV_RGB(0, 0, 0), -1);
+		}
+		*/
+
+		if( ((TabCentre[i].couleur.val[0]>=hR-tolerance && TabCentre[i].couleur.val[1]>=sR-tolerance)&&(TabCentre[i].couleur.val[0]<=hR+tolerance && TabCentre[i].couleur.val[1]<=sR+tolerance)))
+			cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(255, 0, 0), 2);
+			
+		if(((TabCentre[i].couleur.val[0]>=hB-tolerance && TabCentre[i].couleur.val[1]>=sB-tolerance)&&(TabCentre[i].couleur.val[0]<=hB+tolerance && TabCentre[i].couleur.val[1]<=sB+tolerance)))
+			cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(0, 0, 255), 2);
+
+		if(((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) )
+			cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(0, 255, 0), 2);
+
+
+		if( !((TabCentre[i].couleur.val[0]>=hR-tolerance && TabCentre[i].couleur.val[1]>=sR-tolerance)&&(TabCentre[i].couleur.val[0]<=hR+tolerance && TabCentre[i].couleur.val[1]<=sR+tolerance))
+		 && !((TabCentre[i].couleur.val[0]>=hB-tolerance && TabCentre[i].couleur.val[1]>=sB-tolerance)&&(TabCentre[i].couleur.val[0]<=hB+tolerance && TabCentre[i].couleur.val[1]<=sB+tolerance))
+		&& !((TabCentre[i].couleur.val[0]>=hG-tolerance && TabCentre[i].couleur.val[1]>=sG-1.5*tolerance)&&(TabCentre[i].couleur.val[0]<=hG+tolerance && TabCentre[i].couleur.val[1]<=sG+1.5*tolerance)) ){
+			cvDrawCircle(image, TabCentre[i].point, 20, CV_RGB(120, 120, 120), 2);
+			nbBadColor++;
 		}
 	}
 }
@@ -478,7 +544,9 @@ void key(unsigned char key,int x ,int y)
 	{
 	case 'R':
 	case 'r':
-		v.reset_view(45,45,20,10);
+		//v.reset_view(45,45,20,10);			
+		r.randomize();
+		glutPostRedisplay();
 		break;
 	case 27:
 		//if(conformationbox(L"Exit?",L"Do You Want To Exit?"))
@@ -488,8 +556,7 @@ void key(unsigned char key,int x ,int y)
 	case 'N':
 		//if(conformationbox(L"New Game?",L"Do You Want To Start A New Game?"))
 		//{
-			r.randomize();
-			glutPostRedisplay();
+
 		//}
 		break;
 	case '.': case '>':
@@ -503,12 +570,17 @@ void key(unsigned char key,int x ,int y)
 		break;
 	case 's':
 	case 'S':
-		if(!r.solving)
-			//if(!conformationbox(L"Solve Cube?",L"Do You Want The Computer To Solve The Cube?"))
-				break;
-		r.keyboard(key);
-		glutPostRedisplay();
+		//if(!r.solving)
+		//	//if(!conformationbox(L"Solve Cube?",L"Do You Want The Computer To Solve The Cube?"))
+		//		break;
+		//r.keyboard(key);
+		//glutPostRedisplay();
+		r.melange();
 		break;
+	case 'i':
+	case 'I':
+			r = RubixCube((double)2);
+			break;
 	}
 }
 
@@ -563,7 +635,7 @@ void on_opengl(int argc, char * argv[]) {
 		//OPENGL INITAILISATION;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(resx , resy); glutInitWindowPosition(650,500);
+	glutInitWindowSize(resx , 1.7*resy); glutInitWindowPosition(resx,0);
 	glutCreateWindow("Rubik's Cube"); 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
@@ -578,101 +650,108 @@ void on_opengl(int argc, char * argv[]) {
 
 
 
-int redo = 0; int numberBeforeRedo = 40; // Ces variables permette de ne pas refaire de binarisation enchainer
+int redo = 0; int numberBeforeRedo = 5; // Ces variables permette de ne pas refaire de binarisation enchainer
 void idle()
 {
 	r.rotation_idle_func();
-	//cout << "Tour "<<endl;
-		// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
-	//while(keyb != 'q' && keyb != 'Q') {
-			d=clock();
-		// On récupère une image
-		image = cvQueryFrame(capture); 
-		hsv = cvCloneImage(image);
-		cvCvtColor(image, hsv, CV_BGR2HSV);
-
-		if(initialisation)
-		{
-			if(say)
-			switch (cptInit)
-			{
-			case 0 : cout << "Cliquez sur le Rouge" <<endl  ;
-				say = false; break; 
-			case 1 : cout << "Cliquez sur le Vert" <<endl ;
-				say = false; break; ; 
-			case 2 : cout << "Cliquez sur le Bleu" <<endl  ;
-				say = false;  break; ; 
-			case 3 : initialisation = false ;
-			}
-			cvFlip(image,image,-1); 
-			cvShowImage("GeckoGeek Color Tracking", image);
-		
-
-			cvReleaseImage(&hsv);
-		}
-		else
-		{
+			//cout << "Tour "<<endl;
+			// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
+			//while(keyb != 'q' && keyb != 'Q') {
 			
-			redo++;
-			cout<<tabCentre.size()<<endl;
-			if( (tabCentre.size()<6 && tabCentre.size()!=1 && tabCentre.size()!=2  && tabCentre.size()!=3 && redo >= numberBeforeRedo) ){ //!!!!!
-			//if( tabCentre.size()<6 && tabCentre.size()!=1){ //!!!!!
-				debut = clock();
-				imageBis=binarisation(image);
-				fin = clock(); 
-				//cout<<" 2   binarisation : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-				debut = clock();
-				tabCentre=detection(imageBis);
-				DrawCentre(tabCentre);
-				fin = clock(); 
-				//cout<<" 2   detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
-				redo =0;
-			}
+	// On récupère une image
+	image = cvQueryFrame(capture); 
+	hsv = cvCloneImage(image);
+	cvCvtColor(image, hsv, CV_BGR2HSV);
 
-			// If there is no image, we exit the loop
-			//if(!image)
-			//	continue;
-		
-			vector<Centre> tabnewCentre;
-			debut = clock();
-			tabnewCentre=Tracking(tabCentre);
-			fin = clock(); 
-			//cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-			debut = clock();
-			DrawCentre(tabnewCentre);
-			fin = clock(); 
-			//cout<<"				   draw : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
-			//IplImage* flipped;
-			cvFlip(image,image,-1); // Effet miroir sur l'image de la camera a decommenter quand le logiciel sera fini pour avoir un affichage ergonomique
-			cvShowImage("GeckoGeek Color Tracking", image);
-		
-
-			cvReleaseImage(&hsv);
-
-			// INTERPRETATION
-			//r.display_rotation();
-			//r.moveRX(0.5);
-			interprete.launch(tabCentre,tabnewCentre);
-			//cout << "Apres launch" << endl;
-
-			//FIN INTERPRETATION
-
-			//copie du nouveau tableau dans tabCentre
-			tabCentre.clear();
-			for(int i=0;i<tabnewCentre.size();i++){
-				tabCentre.push_back(tabnewCentre[i]);
-			}
-
-		
-			// On attend 10ms
-			keyb = cvWaitKey(5);
-			f=clock();
-			//cout<<"  tt : "<<((double)(f-d) / (double) CLOCKS_PER_SEC)<<endl; 
+	if(initialisation)
+	{
+		if(say)
+		switch (cptInit)
+		{
+		case 0 : cout << "Cliquez sur le Rouge" <<endl  ;
+			say = false; break; 
+		case 1 : cout << "Cliquez sur le Vert" <<endl ;
+			say = false; break; ; 
+		case 2 : cout << "Cliquez sur le Bleu" <<endl  ;
+			say = false;  break; ; 
+		case 3 : initialisation = false ;
 		}
+		cvFlip(image,image,-1); 
+		cvShowImage("GeckoGeek Color Tracking", image);
+		
+
+		cvReleaseImage(&hsv);
+	}
+	else
+	{
+			
+		redo++;
+		cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
+					/// avant c'etait 6 mais comme on fait tout avec 3 doigts
+
+		// voir lequel des deux est le mieux!!!
+				//if( (tabCentre.size()==0 && redo >= numberBeforeRedo)|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){ //!!!!!
+		if( (tabCentre.size()==0 && redo>=numberBeforeRedo) ||(tabCentre.size()==0 && preBin(image) )|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 || (tabCentre.size()==nbBadColor && nbBadColor!=0)){
+			cout << "Fait binarisation \n";
+					//debut = clock();
+			imageBis=binarisation(image);
+					//fin = clock(); 
+					//cout<<" 2   binarisation : "<<endl;//<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+					//debut = clock();
+
+			tabCentre=detection(imageBis);
+			//DrawCentre(tabCentre);
+				
+						//fin = clock(); 
+						//cout<<" 2   detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
+			nbBadColor=0;
+			redo=0;
+		}
+
+					// If there is no image, we exit the loop
+					//if(!image)
+					//	continue;
+		
+		vector<Centre> tabnewCentre;
+		debut = clock();
+		tabnewCentre=Tracking(tabCentre);
+		fin = clock(); 
+		cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+
+		DrawCentre(tabnewCentre);
+					
+					//IplImage* flipped;
+		cvFlip(image,image,-1); // Effet miroir sur l'image de la camera a decommenter quand le logiciel sera fini pour avoir un affichage ergonomique
+		cvShowImage("GeckoGeek Color Tracking", image);
+		cvReleaseImage(&hsv);
+
+		// INTERPRETATION
+				//r.display_rotation();
+				//r.moveRX(0.5);
+
+		if(tabCentre.size()==tabnewCentre.size() && redo>=2){
+			//DrawCentre(tabnewCentre);
+			cout<<"ok c'est bon!!!!"<<endl;
+			interprete.launch(tabCentre,tabnewCentre);
+					//cout << "Apres launch" << endl;
+		}
+		//FIN INTERPRETATION
+
+		//copie du nouveau tableau dans tabCentre
+		tabCentre.clear();
+		for(int i=0;i<tabnewCentre.size();i++){
+			tabCentre.push_back(tabnewCentre[i]);
+		}
+
+		
+			
+		// On attend 10ms
+		keyb = cvWaitKey(5);
+	}
 		
 
 
-	//}
+//}
 		
 	glutPostRedisplay();
 }
@@ -693,6 +772,8 @@ void idle()
 
 int main( int argc, char * argv[])
 {
+	
+	
 
 
 	interprete = Interpreteur(&v,&r, hR, sR, hG, sG, hB, sB);
@@ -709,12 +790,18 @@ int main( int argc, char * argv[])
        return 1;
  
     }
-
+	resx = cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH);
+	resy = cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT);
+	IplImage* imgMouvement = cvLoadImage( "Rubik's.png");
+	cvNamedWindow( "Signe et Symbole", 0);
+	cvMoveWindow("Signe et Symbole", 0,resy+10);
+	resizeWindow("Signe et Symbole", resx,300);
+	cvShowImage( "Signe et Symbole", imgMouvement );
 	
 	// Create the windows
     cvNamedWindow("GeckoGeek Color Tracking", CV_WINDOW_AUTOSIZE);
     //cvNamedWindow("GeckoGeek Mask", CV_WINDOW_AUTOSIZE);
-    cvMoveWindow("GeckoGeek Color Tracking", 0, 300);
+    cvMoveWindow("GeckoGeek Color Tracking", 0, 0);
     //cvMoveWindow("GeckoGeek Mask", 650, 50);
 	// Mouse event to select the tracked color on the original image
     cvSetMouseCallback("GeckoGeek Color Tracking", getObjectColor);
@@ -735,7 +822,6 @@ int main( int argc, char * argv[])
 		fin = clock(); 
 		//cout<<"  detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
 		
-  
 		
 		//Boucle (dans idle maintenant)
 		on_opengl(argc,argv);
@@ -749,7 +835,8 @@ int main( int argc, char * argv[])
     cvReleaseCapture(&capture);
 	cvDestroyWindow("GeckoGeek Color Tracking");
     //cvDestroyWindow("GeckoGeek Mask");
-
+	cvDestroyWindow( "Signe et Symbole" );
+	cvReleaseImage( &imgMouvement );
 
 }
 
