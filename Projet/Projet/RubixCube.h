@@ -8,7 +8,10 @@
 #include "glut.h"
 #include "Cube.h"
 #include <iostream>
-
+#include <string>
+#include <fstream>
+ 
+using namespace std;
 class RubixCube
 {
 	GLfloat x,y,z; // Ces valeur permettent de connaitre sa position par au centre de l'image.
@@ -24,9 +27,10 @@ class RubixCube
 	bool rotating;
 	std::vector<int> axis,plane,
 		keypressed/*0=axis change, 1=plane change, 2=clockwise rot, 3=anticlockwise rot*/;
-
+	
 
 public:
+	string ensembleCommandes;
 	bool solving;
 	RubixCube(double length);
 	void set_centre();
@@ -45,13 +49,24 @@ public:
 	void moveZ(GLfloat val);
 	void moveY(GLfloat val);
 	void moveX(GLfloat val); //Profondeur
-	void moveRX(GLfloat val);
-	void moveRY(GLfloat val);
-	void moveRZ(GLfloat val);
+	void moveRX();
+	void moveRY();
+	void moveRZ();
 	void moveRUF();
+	void melange();
 	void reinit();
 
 	void recalcAxis();
+
+private:
+
+
+	//Ces fonctions simule les commande de mouvements mais sans les animations. (meme sens est un boolean qui permet de savoir si on veut faire le mouvement dans le même sens que si on le faisait avec les doigts ou dans le sens inverse)
+	void moveR(bool memesens);
+	void moveV(bool memesens);
+	void moveB(bool memesens);
+	void moveRV(bool memesens);
+
 };
 
 #endif

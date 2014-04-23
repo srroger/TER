@@ -72,11 +72,11 @@ void Viewer::special_keyboard(int key)
 		//posTrans[1] += 2;
 		break;
 	case GLUT_KEY_PAGE_UP:
-		r->moveRZ(3); 
+		r->moveRZ(); 
 		//Rotation(HAUT,3);
 		break;
 	case GLUT_KEY_PAGE_DOWN:
-		r->moveRY(3); 
+		r->moveRY(); 
 		//Rotation(GAUCHE,3);
 		break;
 	}

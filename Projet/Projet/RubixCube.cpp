@@ -104,9 +104,11 @@ void RubixCube::randomize()
 			rotate_cube_plane();
 			break;
 		case 3:
+			//Rotation d'un coté (celui que nous utilisons tout le temps)
 			dir=1;
 			rotating=false;
 			rotate_cube_plane();
+			//Fin rotation coté
 			break;
 		}
 	}
@@ -381,7 +383,7 @@ void RubixCube::rotate_cube_plane()
 		int i,j,k;int p = 0;
 		if(plane.back()!=0 && plane.back()!=1 && plane.back()!=2)
 			exit(2);
-		cout<<"eeeeeeeeeeeeeeeeeeeee"<<endl;
+		//cout<<"eeeeeeeeeeeeeeeeeeeee"<<endl;
 		switch(axis.back())
 		{
 		case 0:
@@ -520,8 +522,8 @@ void RubixCube::keyboard(unsigned char key)
 			break;
 		case 's':
 		case 'S':
-			solving=true;
-			solve();
+			//solving=true;
+			//solve();
 			break;
 		}
 	}
@@ -542,8 +544,8 @@ void RubixCube::moveX(GLfloat val)
 	x = x + val; 
 }
 
-
-void RubixCube::moveRX(GLfloat val)
+//Rouge
+void RubixCube::moveRX()
 {
 	axis.push_back(3);
 	//keypressed.push_back(0);
@@ -555,7 +557,9 @@ void RubixCube::moveRX(GLfloat val)
 	
 	//rx = rx + val; if(rx > 360) rx= rx-360; if(rx < -360) rx= rx+360;
 }
-void RubixCube::moveRY(GLfloat val)
+
+//Vert
+void RubixCube::moveRY()
 {
 		axis.push_back(4);
 		//keypressed.push_back(0);
@@ -567,7 +571,8 @@ void RubixCube::moveRY(GLfloat val)
 	//ry = ry + val; if(ry > 360) ry= ry-360; if(ry < -360) ry= ry+360;
 
 }
-void RubixCube::moveRZ(GLfloat val)
+//Bleu
+void RubixCube::moveRZ()
 {
 
 		axis.push_back(5);
@@ -581,6 +586,7 @@ void RubixCube::moveRZ(GLfloat val)
 	
 }
 
+//vert-rouge
 void RubixCube::moveRUF()
 {
 	//plane.push_back(2);
@@ -592,6 +598,104 @@ void RubixCube::moveRUF()
 	rotating=true;
 	cout<<"la moveruf"<<endl;
 	rotate_cube_plane();
+}
+
+
+void RubixCube::moveR(bool memesens)
+{
+	
+	//Rouge
+	axis.push_back(3);
+	if(memesens)dir=1; else dir = 0;
+	rotating=false;
+	rotate_cube_plane();
+
+}
+void RubixCube::moveV(bool memesens)
+{
+	
+	//Vert
+	axis.push_back(4);
+	if(memesens)dir=1; else dir = 0;
+	rotating=false;
+	rotate_cube_plane();
+
+}
+void RubixCube::moveB(bool memesens)
+{
+	//Bleu
+	axis.push_back(5);
+	if(memesens)dir=1; else dir = 0;
+	rotating=false;
+	rotate_cube_plane();
+
+
+}
+void RubixCube::moveRV(bool memesens)
+{
+	axis.push_back(2);
+	//Rotation d'un coté (celui que nous utilisons tout le temps)
+	if(memesens)dir=1; else dir = 0;
+	rotating=false;
+	rotate_cube_plane();
+	//Fin rotation coté
+}
+
+
+
+
+//Melange pour le scenario
+void RubixCube::melange()
+{	//moveRV(false);moveR(false);	moveRV(false);
+	//Scenarii 1 : 2xrouge, vert-rouge, bleu, vert-rouge
+	//On le fait dans le sens inverse afin que le cube soit fait à la fin de la liste des mouvements
+	//moveRV(false);
+	//moveB(false);
+	//moveRV(false);
+	//moveR(false);
+	//moveR(false);
+
+	string filename = "Scenario.txt";
+	ifstream fichier(filename, ios::in);  // on ouvre en lecture
+
+	if(fichier)
+	{
+		vector<string> commandes;
+		string ligne;//string RV = "RV"; string R ="R" ; string V = "V"; string B = "B";
+		while(getline(fichier, ligne))  // tant que l'on peut mettre la ligne dans "contenu"
+		{
+			
+			if(ligne.compare("RV")){
+				moveRV(false);	
+				commandes.push_back("RV");
+			}
+			else if(ligne.compare("R")){
+				moveR(false);
+				commandes.push_back("R");
+			}
+			else if(ligne.compare("V")){
+				moveV(false);
+				commandes.push_back("V");
+			}
+			else if(ligne.compare("B")){
+				moveB(false);
+				commandes.push_back("B");
+			}
+			
+		}
+
+		
+		
+		for(int i=0;i<(commandes).size();i++){
+			ensembleCommandes += commandes.back()+" ";
+			commandes.pop_back();
+		}
+
+	}	
+        else
+                cerr << "Impossible d'ouvrir le fichier !" << endl;
+ 
+	fichier.close();
 }
 
 void RubixCube::reinit()

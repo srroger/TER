@@ -198,7 +198,7 @@ bool Interpreteur::rotationBas()//vector<Centre> tabCentre, vector<Centre> tabNe
 {
 	couleurTrouveePred=VERT;
 	cout<<"vert"<<endl;
-	r->moveRY(cranRotation); cptRotation++;
+	r->moveRY(); cptRotation++;
 
 	if(cptRotation*cranRotation >= maxRotation){
 		faireRotation=false; 
@@ -213,7 +213,7 @@ bool Interpreteur::rotationBas()//vector<Centre> tabCentre, vector<Centre> tabNe
 bool Interpreteur::rotationFace()
 {	cout<<"Rouge"<<endl;
 	couleurTrouveePred=ROUGE;
-	r->moveRX(cranRotation); cptRotation++;
+	r->moveRX(); cptRotation++;
 	if(cptRotation*cranRotation >= maxRotation){
 		faireRotation=false;
 		couleurTrouveePred=RIEN;
@@ -227,7 +227,7 @@ bool Interpreteur::rotationCote()//vector<Centre> tabCentre, vector<Centre> tabN
 {
 	cout<<"bleu"<<endl;
 	couleurTrouveePred=BLEU;
-	r->moveRZ(cranRotation); // on fait une rotation
+	r->moveRZ(); // on fait une rotation
 	cptRotation++; 
 	if(cptRotation*cranRotation >= maxRotation){
 		faireRotation=false; 
@@ -304,21 +304,23 @@ vector<CvPoint> Interpreteur::direction(vector<Centre> tabCentre, vector<Centre>
 }
 
 
-
-
+/**
+//Rouge
 void Interpreteur::moveRX(GLfloat val)
 {
 	v->Rotation(DROITE,val); //Ca c'est pas sur
 }
+//Vert
 void Interpreteur::moveRY(GLfloat val)
 {
 	v->Rotation(GAUCHE,val);
 }
+//Bleu
 void Interpreteur::moveRZ(GLfloat val)
 {
 	v->Rotation(HAUT,val);
 }
-
+*/
 
 
 
