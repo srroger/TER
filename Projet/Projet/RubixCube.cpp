@@ -596,7 +596,7 @@ void RubixCube::moveRUF()
 	dir=1;
 	//keypressed.push_back(3);
 	rotating=true;
-	cout<<"la moveruf"<<endl;
+	//cout<<"la moveruf"<<endl;
 	rotate_cube_plane();
 }
 
@@ -641,9 +641,6 @@ void RubixCube::moveRV(bool memesens)
 	//Fin rotation coté
 }
 
-
-
-
 //Melange pour le scenario
 void RubixCube::melange()
 {	//moveRV(false);moveR(false);	moveRV(false);
@@ -658,39 +655,67 @@ void RubixCube::melange()
 	string filename = "Scenario.txt";
 	ifstream fichier(filename, ios::in);  // on ouvre en lecture
 
+	
 	if(fichier)
 	{
 		vector<string> commandes;
-		string ligne;//string RV = "RV"; string R ="R" ; string V = "V"; string B = "B";
-		while(getline(fichier, ligne))  // tant que l'on peut mettre la ligne dans "contenu"
+		string ligne;
+		string recuperationcommandes;
+
+		int nbLigne=0;
+		string chaine1, chaine2;
+		fichier >> nbLigne; 
+		getline(fichier, ligne);// car ligne "" apparait
+
+		int ligneSelectionner = rand() % nbLigne + 1;
+		//cout<<ligneSelectionner<<"   "<<nbLigne<<endl;
+		int cptligne=1;
+
+		while(fichier.good())  // tant que l'on peut mettre la ligne dans "contenu"
 		{
-			
-			if(ligne.compare("RV")){
-				moveRV(false);	
-				commandes.push_back("RV");
-			}
-			else if(ligne.compare("R")){
-				moveR(false);
-				commandes.push_back("R");
-			}
-			else if(ligne.compare("V")){
-				moveV(false);
-				commandes.push_back("V");
-			}
-			else if(ligne.compare("B")){
-				moveB(false);
-				commandes.push_back("B");
-			}
-			
-		}
+			getline(fichier, ligne);
+			//recuperationcommandes="";
+			//cout<<"-"<<ligne<<"-"<<endl;
+			if(ligneSelectionner==cptligne){
+				//cout<<"ici "<<cptligne<<endl;
+				for(int i=0;i<ligne.size();i++){
+					//cout<<ligne[i]<<" a ";
+					if(ligne[i]!=' ' && i<ligne.length()){
+						recuperationcommandes+=ligne[i];
+					}
+					if(recuperationcommandes!=" " && ((ligne[i]==' ') || (i==ligne.length()-1 ) )){
+						if(recuperationcommandes.compare("RV")==0){
+							moveRV(false);	
+							commandes.push_back("RV");
+							recuperationcommandes="";
+						}
+						if(recuperationcommandes.compare("R")==0){
+							moveR(false);
+							commandes.push_back("R");
+							recuperationcommandes="";
+						}
+						if(recuperationcommandes.compare("V")==0){
+							moveV(false);
+							commandes.push_back("V");
+							recuperationcommandes="";
+						}
+						if(recuperationcommandes.compare("B")==0){
+							moveB(false);
+							commandes.push_back("B");
+							recuperationcommandes="";
+						}
+					}//if
+				}//for
+			}//if
+			cptligne++;
+		}//while
 
-		
-		
-		for(int i=0;i<(commandes).size();i++){
-			ensembleCommandes += commandes.back()+" ";
-			commandes.pop_back();
-		}
 
+		ensembleCommandes.clear();
+		for(int i=commandes.size()-1;i>=0;i--){
+			ensembleCommandes += commandes.at(i)+" ";
+		}
+		
 	}	
         else
                 cerr << "Impossible d'ouvrir le fichier !" << endl;

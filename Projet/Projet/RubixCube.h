@@ -27,7 +27,7 @@ class RubixCube
 	bool rotating;
 	std::vector<int> axis,plane,
 		keypressed/*0=axis change, 1=plane change, 2=clockwise rot, 3=anticlockwise rot*/;
-	
+
 
 public:
 	string ensembleCommandes;

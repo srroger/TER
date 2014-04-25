@@ -53,6 +53,9 @@ bool initialisation = true; int cptInit = 0; bool say = true; // Variable pour l
 double debut, fin; 
 int nbBadColor=0;
 
+time_t tempsdepartchrono;
+bool chrono=false;
+
 int Xmax=0,Xmin=1000,Ymax=0,Ymin=1000;
 /**
 struct Centre{
@@ -75,8 +78,7 @@ vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 char keyb=NULL;
 // Capture vidéo
 static CvCapture *capture;
-static	double chronoDebut, chronoFin;
-bool chrono=false;
+static	double d, f;
 static	IplImage *imageBis;
 static	vector<Centre> tabCentre;
 
@@ -545,24 +547,23 @@ void key(unsigned char key,int x ,int y)
 	{
 	case 'R':
 	case 'r':
-		//v.reset_view(45,45,20,10);	
+		//v.reset_view(45,45,20,10);
 		chrono=false;
+		r = RubixCube((double)2);
 		r.randomize();
 		glutPostRedisplay();
 		break;
-	case 27:
-		//if(conformationbox(L"Exit?",L"Do You Want To Exit?"))
-			exit(0);
-		break;
-
 	case 't':
 	case 'T':
 		if(!chrono){
 			chrono=true;
-			chronoDebut=0;
-			chronoDebut=clock();
+			time(&tempsdepartchrono);
 		}
 		else chrono=false;
+		break;
+	case 27:
+		//if(conformationbox(L"Exit?",L"Do You Want To Exit?"))
+			exit(0);
 		break;
 	case 'n':
 	case 'N':
@@ -588,13 +589,20 @@ void key(unsigned char key,int x ,int y)
 		//r.keyboard(key);
 		//glutPostRedisplay();
 		chrono=false;
+		r = RubixCube((double)2);
 		r.melange();
 		break;
 	case 'i':
 	case 'I':
-		chrono=false;
+			chrono=false;
 			r = RubixCube((double)2);
 			break;
+	case 'd':
+	case'D':
+		
+		cptInit=0;
+		initialisation=true;
+		break;
 	}
 }
 
@@ -649,7 +657,7 @@ void on_opengl(int argc, char * argv[]) {
 		//OPENGL INITAILISATION;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(resx , 1.7*resy); glutInitWindowPosition(resx+20,0);
+	glutInitWindowSize(resx , 1.7*resy); glutInitWindowPosition(resx+25,0);
 	glutCreateWindow("Rubik's Cube"); 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
@@ -661,9 +669,6 @@ void on_opengl(int argc, char * argv[]) {
 	//glutMainLoop();
 
 }
-
-		
-		
 
 void AffichageFenetrePrincipale(const char* texte,bool chrono){
 		CvFont font;
@@ -680,10 +685,8 @@ void AffichageFenetrePrincipale(const char* texte,bool chrono){
 		cvPutText(image,texte,origine,&font,CV_RGB(0,0,0));
 }
 
-
-
+const char* texte="";string temps="0:0:0";
 int redo = 0; int numberBeforeRedo = 5; // Ces variables permette de ne pas refaire de binarisation enchainer
-const char* texte="";string temps;
 void idle()
 {
 	r.rotation_idle_func();
@@ -695,7 +698,7 @@ void idle()
 	image = cvQueryFrame(capture); 
 	hsv = cvCloneImage(image);
 	cvCvtColor(image, hsv, CV_BGR2HSV);
-	
+
 	if(initialisation)
 	{
 		if(say)
@@ -711,20 +714,16 @@ void idle()
 			break; ; 
 		case 2 : 
 			say = false; 
-
 			texte="Cliquez sur le Bleu";
-			break; ; 
+			break;
 		case 3 : 
 			texte="C'est parti!!!!";
 			initialisation = false ;
 		}
-		
 		cvFlip(image,image,-1); 
 		AffichageFenetrePrincipale(texte,false);
-		cvShowImage("GeckoGeek Color Tracking", image);
+		cvShowImage("Acquisition des signes", image);
 		
-		temps="0";
-	
 
 		cvReleaseImage(&hsv);
 	}
@@ -732,17 +731,17 @@ void idle()
 	{
 			
 		redo++;
-		cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
+		//cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
 					/// avant c'etait 6 mais comme on fait tout avec 3 doigts
 
 		// voir lequel des deux est le mieux!!!
 				//if( (tabCentre.size()==0 && redo >= numberBeforeRedo)|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 ){ //!!!!!
 		if( (tabCentre.size()==0 && redo>=numberBeforeRedo) ||(tabCentre.size()==0 && preBin(image) )|| (((double)(fin-debut) / (double) CLOCKS_PER_SEC)>0.3)  || tabCentre.size()>3 || (tabCentre.size()==nbBadColor && nbBadColor!=0)){
-			cout << "Fait binarisation \n";
+			//cout << "Fait binarisation \n";
 					//debut = clock();
 			imageBis=binarisation(image);
 					//fin = clock(); 
-					//cout<<" 2   binarisation : "<<endl;//<<<<endl; 
+					//cout<<" 2   binarisation : "<<endl;//<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 					//debut = clock();
 
 			tabCentre=detection(imageBis);
@@ -762,41 +761,43 @@ void idle()
 		debut = clock();
 		tabnewCentre=Tracking(tabCentre);
 		fin = clock(); 
-		cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
+		//cout<<"				   tracking : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl; 
 
 		DrawCentre(tabnewCentre);
-					
-		
-		
-		
-////////////////// affichage dans la fenetre du Tracking
-		
+			
 
-
-		cvFlip(image,image,-1);// Effet miroir sur l'image de la camera a decommenter quand le logiciel sera fini pour avoir un affichage ergonomique
-		AffichageFenetrePrincipale(r.ensembleCommandes.c_str(),false);
-		
 		ostringstream oss; 
 		string result="";
 		
 		if(chrono){
-			chronoFin=clock();
+			//chronoFin=clock();
 		// écrire un nombre dans le flux 
-			oss << ((double)(chronoFin-chronoDebut)/ (double) CLOCKS_PER_SEC); 
+			int h=0,min=0,sec=0;
+			time_t tempsactuel;
+
+			time(&tempsactuel);//(((double)(chronoFin-chronoDebut)/ (double) CLOCKS_PER_SEC));
+			
+			sec=difftime(tempsactuel,tempsdepartchrono);
+
+			h=((int)sec)/(60*60);
+			min=((int)sec)/60;
+			sec=sec-h*60*60-min*60;
+			//cout<<"  "<<h<<" "<<min<<"   "<<sec<<endl;
+			
+			oss<<h<<":"<<min<<":"<<sec; 
 			 // récupérer une chaîne de caractères 
 			temps=oss.str();
 		}
 		
-		result ="temps: "+ temps+" sec" ; 
-		
+		result ="temps: "+ temps ; 
+
+
+
+					//IplImage* flipped;
+		cvFlip(image,image,-1); // Effet miroir sur l'image de la camera a decommenter quand le logiciel sera fini pour avoir un affichage ergonomique
+		AffichageFenetrePrincipale(r.ensembleCommandes.c_str(),false);
 		AffichageFenetrePrincipale(result.c_str(),true);
-		cvShowImage("GeckoGeek Color Tracking", image);
-		
-
-
-
-
-
+		cvShowImage("Acquisition des signes", image);
 		cvReleaseImage(&hsv);
 
 		// INTERPRETATION
@@ -805,7 +806,7 @@ void idle()
 
 		if(tabCentre.size()==tabnewCentre.size() && redo>=2){
 			//DrawCentre(tabnewCentre);
-			cout<<"ok c'est bon!!!!"<<endl;
+			//cout<<"ok c'est bon!!!!"<<endl;
 			interprete.launch(tabCentre,tabnewCentre);
 					//cout << "Apres launch" << endl;
 		}
@@ -847,6 +848,9 @@ void idle()
 int main( int argc, char * argv[])
 {
 	
+	
+
+
 	interprete = Interpreteur(&v,&r, hR, sR, hG, sG, hB, sB);
 	//debut = clock();
 	
@@ -856,31 +860,27 @@ int main( int argc, char * argv[])
 	
     // Vérifier si l'ouverture du flux est ok
     if (!capture) {
+ 
        printf("Ouverture du flux vidéo impossible !\n");
        return 1;
  
     }
-	//affichage de la notice
 	resx = cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH);
 	resy = cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT);
 	IplImage* imgMouvement = cvLoadImage( "Rubik's.png");
 	cvNamedWindow( "Signe et Symbole", 0);
-	cvMoveWindow("Signe et Symbole", 0,resy+10);
+	cvMoveWindow("Signe et Symbole", 0,resy+35);
 	resizeWindow("Signe et Symbole", resx,300);
 	cvShowImage( "Signe et Symbole", imgMouvement );
 	
 	// Create the windows
-    cvNamedWindow("GeckoGeek Color Tracking", CV_WINDOW_AUTOSIZE);
+    cvNamedWindow("Acquisition des signes", CV_WINDOW_AUTOSIZE);
     //cvNamedWindow("GeckoGeek Mask", CV_WINDOW_AUTOSIZE);
-    cvMoveWindow("GeckoGeek Color Tracking", 0, 0);
+    cvMoveWindow("Acquisition des signes", 0, 0);
     //cvMoveWindow("GeckoGeek Mask", 650, 50);
 	// Mouse event to select the tracked color on the original image
-    cvSetMouseCallback("GeckoGeek Color Tracking", getObjectColor);
+    cvSetMouseCallback("Acquisition des signes", getObjectColor);
  
-
-
-
-
 
 	// initialisation de la capture
 		image = cvQueryFrame(capture);
@@ -908,7 +908,7 @@ int main( int argc, char * argv[])
 
 
     cvReleaseCapture(&capture);
-	cvDestroyWindow("GeckoGeek Color Tracking");
+	cvDestroyWindow("Acquisition des signes");
     //cvDestroyWindow("GeckoGeek Mask");
 	cvDestroyWindow( "Signe et Symbole" );
 	cvReleaseImage( &imgMouvement );
