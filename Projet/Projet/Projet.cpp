@@ -19,7 +19,7 @@
 #include <iostream>
 #include <time.h>
 #include<stack>
-
+#include <fmod.h>
 
 
 #include <cmath>
@@ -57,6 +57,17 @@ time_t tempsdepartchrono;
 bool chrono=false;
 
 int Xmax=0,Xmin=1000,Ymax=0,Ymin=1000;
+
+
+FMOD_SYSTEM *systemSon;
+FMOD_SOUND *sonClic,*sonDepart,*sonTouche;
+FMOD_RESULT resultatSonClic,resultatSonTouche,resultatSonDepart;
+
+const char* texte="";string temps="0:0:0";
+int redo = 0; int numberBeforeRedo = 5; // Ces variables permette de ne pas refaire de binarisation enchainer
+
+#define KEY_ECHAP 27
+
 /**
 struct Centre{
 	CvPoint point;
@@ -72,6 +83,7 @@ void Inverse();
 void MaxMin(int x, int y);
 vector<Centre> Tracking(vector<Centre> TabCentre);
 vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
+void AffichageFenetrePrincipale(const char* texte,bool chrono);
 
 //Objet rendu static pour la liaisons :
 // Touche clavier
@@ -420,8 +432,18 @@ void getObjectColor(int event, int x, int y, int flags, void *param = NULL) {
     // Vars
     CvScalar pixel;
     IplImage *hsv;
+
+
+	
  
     if(event == CV_EVENT_LBUTTONUP) {
+
+
+		
+		
+		FMOD_System_PlaySound(systemSon, FMOD_CHANNEL_FREE, sonClic, 0, NULL);//son
+		
+
  
         // Get the hsv image
         hsv = cvCloneImage(image);
@@ -548,6 +570,7 @@ void key(unsigned char key,int x ,int y)
 	case 'R':
 	case 'r':
 		//v.reset_view(45,45,20,10);
+		FMOD_System_PlaySound(systemSon, FMOD_CHANNEL_FREE, sonTouche, 0, NULL);//son
 		chrono=false;
 		r = RubixCube((double)2);
 		r.randomize();
@@ -555,13 +578,14 @@ void key(unsigned char key,int x ,int y)
 		break;
 	case 't':
 	case 'T':
+		FMOD_System_PlaySound(systemSon, FMOD_CHANNEL_FREE, sonTouche, 0, NULL);//son
 		if(!chrono){
 			chrono=true;
 			time(&tempsdepartchrono);
 		}
 		else chrono=false;
 		break;
-	case 27:
+	case KEY_ECHAP:
 		//if(conformationbox(L"Exit?",L"Do You Want To Exit?"))
 			exit(0);
 		break;
@@ -588,20 +612,24 @@ void key(unsigned char key,int x ,int y)
 		//		break;
 		//r.keyboard(key);
 		//glutPostRedisplay();
+		FMOD_System_PlaySound(systemSon, FMOD_CHANNEL_FREE, sonTouche, 0, NULL);//son
 		chrono=false;
 		r = RubixCube((double)2);
 		r.melange();
 		break;
 	case 'i':
 	case 'I':
-			chrono=false;
-			r = RubixCube((double)2);
-			break;
+		FMOD_System_PlaySound(systemSon, FMOD_CHANNEL_FREE, sonTouche, 0, NULL);//son
+		chrono=false;
+		r = RubixCube((double)2);
+		break;
 	case 'd':
 	case'D':
-		
+		FMOD_System_PlaySound(systemSon, FMOD_CHANNEL_FREE, sonTouche, 0, NULL);//son
 		cptInit=0;
 		initialisation=true;
+		texte="Cliquez sur le Rouge";
+		AffichageFenetrePrincipale(texte,false);
 		break;
 	}
 }
@@ -685,8 +713,7 @@ void AffichageFenetrePrincipale(const char* texte,bool chrono){
 		cvPutText(image,texte,origine,&font,CV_RGB(0,0,0));
 }
 
-const char* texte="";string temps="0:0:0";
-int redo = 0; int numberBeforeRedo = 5; // Ces variables permette de ne pas refaire de binarisation enchainer
+
 void idle()
 {
 	r.rotation_idle_func();
@@ -717,6 +744,7 @@ void idle()
 			texte="Cliquez sur le Bleu";
 			break;
 		case 3 : 
+			FMOD_System_PlaySound(systemSon, FMOD_CHANNEL_FREE, sonDepart, 0, NULL);//son
 			texte="C'est parti!!!!";
 			initialisation = false ;
 		}
@@ -729,7 +757,6 @@ void idle()
 	}
 	else
 	{
-			
 		redo++;
 		//cout<<redo<<"                                                    "<<tabCentre.size()<<endl;
 					/// avant c'etait 6 mais comme on fait tout avec 3 doigts
@@ -847,8 +874,34 @@ void idle()
 
 int main( int argc, char * argv[])
 {
+	/* Création et initialisation d'un objet système */
+		FMOD_System_Create(&systemSon);
+		FMOD_System_Init(systemSon, 1, FMOD_INIT_NORMAL, NULL);
+
+		/* Chargement du son et vérification du chargement */
+		resultatSonDepart = FMOD_System_CreateSound(systemSon, "SF-yehaw.wav", FMOD_CREATESAMPLE, 0, &sonDepart);
+		if (resultatSonDepart != FMOD_OK)
+		{
+			fprintf(stderr, "Impossible de lire SF-yehaw.wav\n");
+			exit(EXIT_FAILURE);
+		}
+		
+		resultatSonClic = FMOD_System_CreateSound(systemSon, "efplay.wav", FMOD_CREATESAMPLE, 0, &sonClic);
+		if (resultatSonClic != FMOD_OK)
+		{
+			fprintf(stderr, "Impossible de lire efplay.wav\n");
+			exit(EXIT_FAILURE);
+		}
 	
-	
+		
+		resultatSonTouche = FMOD_System_CreateSound(systemSon, "ting.wav", FMOD_CREATESAMPLE, 0, &sonTouche);
+		if (resultatSonTouche != FMOD_OK)
+		{
+			fprintf(stderr, "Impossible de lire ting.wav\n");
+			exit(EXIT_FAILURE);
+		}
+
+
 
 
 	interprete = Interpreteur(&v,&r, hR, sR, hG, sG, hB, sB);
@@ -896,7 +949,16 @@ int main( int argc, char * argv[])
 		DrawCentre(tabCentre);
 		fin = clock(); 
 		//cout<<"  detection : "<<((double)(fin-debut) / (double) CLOCKS_PER_SEC)<<endl;
+	
+
+
+
 		
+
+	
+
+   
+
 		
 		//Boucle (dans idle maintenant)
 		on_opengl(argc,argv);
@@ -905,6 +967,17 @@ int main( int argc, char * argv[])
 
 		// Boucle tant que l'utilisateur n'appuie pas sur la touche q (ou Q)
 	
+		
+	FMOD_Sound_Release(sonClic);
+	FMOD_Sound_Release(sonTouche);
+	FMOD_Sound_Release(sonDepart);
+	FMOD_System_Close(systemSon);
+	FMOD_System_Release(systemSon);
+
+	FMOD_Sound_Release(interprete.sonR);
+	FMOD_Sound_Release(interprete.sonRUF);
+	FMOD_System_Close(interprete.systemSon);
+	FMOD_System_Release(interprete.systemSon);
 
 
     cvReleaseCapture(&capture);

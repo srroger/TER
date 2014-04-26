@@ -655,7 +655,7 @@ void RubixCube::melange()
 	string filename = "Scenario.txt";
 	ifstream fichier(filename, ios::in);  // on ouvre en lecture
 
-	
+	/// dans VS
 	if(fichier)
 	{
 		vector<string> commandes;

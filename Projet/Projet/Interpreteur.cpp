@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Interpreteur.h"
 
+
 Interpreteur::Interpreteur()
 {
 	mode = IDLE;
@@ -35,6 +36,28 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 	couleurTrouveePred=RIEN;
 
 	seuilCote = 15;
+
+	/* Création et initialisation d'un objet système */
+		FMOD_System_Create(&systemSon);
+		FMOD_System_Init(systemSon, 1, FMOD_INIT_NORMAL, NULL);
+
+
+	/* Chargement du son et vérification du chargement */
+		resultatR = FMOD_System_CreateSound(systemSon,"fleche-1.wav" , FMOD_CREATESAMPLE, 0, &sonR);
+		if (resultatR != FMOD_OK)
+		{
+			cout<<"Impossible de lire "<<"fleche-1.wav"<<"\n"<<endl;
+			exit(EXIT_FAILURE);
+		}
+
+
+		resultatRUF = FMOD_System_CreateSound(systemSon,"son rubik.wav" , FMOD_CREATESAMPLE, 0, &sonRUF);
+		if (resultatR != FMOD_OK)
+		{
+			cout<<"Impossible de lire "<<"son rubik.wav"<<"\n"<<endl;
+			exit(EXIT_FAILURE);
+		}
+
 }
 
 
@@ -192,12 +215,23 @@ void Interpreteur::rotation(vector<Centre> tabCentre, vector<Centre> tabNewCentr
 	}
 }
 
+void Interpreteur::Bruitage(FMOD_SOUND *son){
+		
+		FMOD_System_PlaySound(systemSon, FMOD_CHANNEL_FREE, son, 0, NULL);
+}
+
+void Interpreteur::BruitageOFF(FMOD_SOUND *son){
+	FMOD_Sound_Release(son);
+	FMOD_System_Close(systemSon);
+	FMOD_System_Release(systemSon);
+}
 
 //VERT
 bool Interpreteur::rotationBas()//vector<Centre> tabCentre, vector<Centre> tabNewCentre
 {
 	couleurTrouveePred=VERT;
 	//cout<<"vert"<<endl;
+	Bruitage(sonR);
 	r->moveRY(); cptRotation++;
 
 	if(cptRotation*cranRotation >= maxRotation){
@@ -213,11 +247,13 @@ bool Interpreteur::rotationBas()//vector<Centre> tabCentre, vector<Centre> tabNe
 bool Interpreteur::rotationFace()
 {	//cout<<"Rouge"<<endl;
 	couleurTrouveePred=ROUGE;
+	Bruitage(sonR);
 	r->moveRX(); cptRotation++;
 	if(cptRotation*cranRotation >= maxRotation){
 		faireRotation=false;
 		couleurTrouveePred=RIEN;
 		// la rotation de 90 a ete faite
+		//BruitageOFF();
 	}
 	return true;
 }
@@ -227,12 +263,14 @@ bool Interpreteur::rotationCote()//vector<Centre> tabCentre, vector<Centre> tabN
 {
 	//cout<<"bleu"<<endl;
 	couleurTrouveePred=BLEU;
+	Bruitage(sonR);
 	r->moveRZ(); // on fait une rotation
 	cptRotation++; 
 	if(cptRotation*cranRotation >= maxRotation){
 		faireRotation=false; 
 		couleurTrouveePred=RIEN;
 		// la rotation de 90 a ete faite
+		//BruitageOFF();
 	}
 	return true;
 }
@@ -240,6 +278,7 @@ bool Interpreteur::rotationCote()//vector<Centre> tabCentre, vector<Centre> tabN
 
 bool Interpreteur::rotationUneFace()
 {
+	Bruitage(sonRUF);
 	r->moveRUF();
 	//cout<<"bleu"<<endl;
 	//couleurTrouveePred=BLEU;
@@ -249,6 +288,7 @@ bool Interpreteur::rotationUneFace()
 		faireRotation=false; 
 		couleurTrouveePred=RIEN;
 		// la rotation de 90 a ete faite
+		//BruitageOFF();
 	}
 	return true;
 }

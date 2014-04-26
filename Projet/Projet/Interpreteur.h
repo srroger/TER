@@ -12,6 +12,7 @@
 
 #include "opencv2/highgui/highgui.hpp"
 #include<cv.h>
+#include <fmod.h>
 
 using namespace std;
 using namespace cv;
@@ -45,7 +46,9 @@ public:
 	bool faireRotation;
 	int cptRotation; int maxRotation; //=90°
 	int couleurTrouveePred;
-
+	FMOD_SYSTEM *systemSon;
+	FMOD_SOUND *sonR,*sonRUF;
+	FMOD_RESULT resultatR,resultatRUF;
 
 	PointGL C, C2;
 	PointGL ptCar[6];// R,V,B,R2,V2,B2;
@@ -76,7 +79,8 @@ private:
 	bool rotationCote();
 	bool rotationBas();
 	bool rotationUneFace();
-
+	void Bruitage(FMOD_SOUND *son);
+	void BruitageOFF(FMOD_SOUND *son);
 	/**
 	//Peut être a supprimer dans un futur proche
 	void moveRX(GLfloat val);
