@@ -47,8 +47,8 @@ public:
 	int cptRotation; int maxRotation; //=90°
 	int couleurTrouveePred;
 	FMOD_SYSTEM *systemSon;
-	FMOD_SOUND *sonR,*sonRUF;
-	FMOD_RESULT resultatR,resultatRUF;
+	FMOD_SOUND *sonR,*sonRUF,*sonVictoire;
+	FMOD_RESULT resultatR,resultatRUF,resultatVictoire;
 
 	PointGL C, C2;
 	PointGL ptCar[6];// R,V,B,R2,V2,B2;
@@ -69,7 +69,7 @@ public:
 	~Interpreteur(void);
 
 	void launch(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
-
+	
 private:
 	vector<CvPoint> direction(vector<Centre> tabCentre, vector<Centre> tabNewCentre);
 	void translation(int indiceRouge);
@@ -80,7 +80,6 @@ private:
 	bool rotationBas();
 	bool rotationUneFace();
 	void Bruitage(FMOD_SOUND *son);
-	void BruitageOFF(FMOD_SOUND *son);
 	/**
 	//Peut être a supprimer dans un futur proche
 	void moveRX(GLfloat val);

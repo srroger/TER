@@ -30,8 +30,11 @@ class RubixCube
 
 
 public:
+	Cube getValC(int i,int j,int k);
+	int getValCubepos(int i,int j,int k);
+	bool facesUniformes();
 	string ensembleCommandes;
-	bool solving;
+	bool solving,aucuneChangement;
 	RubixCube(double length);
 	void set_centre();
 	void display();

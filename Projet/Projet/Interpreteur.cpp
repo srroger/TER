@@ -36,7 +36,7 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 	couleurTrouveePred=RIEN;
 
 	seuilCote = 15;
-
+	
 	/* Création et initialisation d'un objet système */
 		FMOD_System_Create(&systemSon);
 		FMOD_System_Init(systemSon, 1, FMOD_INIT_NORMAL, NULL);
@@ -57,6 +57,15 @@ Interpreteur::Interpreteur(Viewer* vi , RubixCube* ru,int hr, int sr, int hg, in
 			cout<<"Impossible de lire "<<"son rubik.wav"<<"\n"<<endl;
 			exit(EXIT_FAILURE);
 		}
+
+		
+		resultatVictoire = FMOD_System_CreateSound(systemSon,"SF-crowd8.wav" , FMOD_CREATESAMPLE, 0, &sonVictoire);
+		if (resultatVictoire != FMOD_OK)
+		{
+			cout<<"Impossible de lire "<<"SF-crowd8.wav"<<"\n"<<endl;
+			exit(EXIT_FAILURE);
+		}
+
 
 }
 
@@ -220,11 +229,7 @@ void Interpreteur::Bruitage(FMOD_SOUND *son){
 		FMOD_System_PlaySound(systemSon, FMOD_CHANNEL_FREE, son, 0, NULL);
 }
 
-void Interpreteur::BruitageOFF(FMOD_SOUND *son){
-	FMOD_Sound_Release(son);
-	FMOD_System_Close(systemSon);
-	FMOD_System_Release(systemSon);
-}
+
 
 //VERT
 bool Interpreteur::rotationBas()//vector<Centre> tabCentre, vector<Centre> tabNewCentre
@@ -233,7 +238,6 @@ bool Interpreteur::rotationBas()//vector<Centre> tabCentre, vector<Centre> tabNe
 	//cout<<"vert"<<endl;
 	Bruitage(sonR);
 	r->moveRY(); cptRotation++;
-
 	if(cptRotation*cranRotation >= maxRotation){
 		faireRotation=false; 
 		couleurTrouveePred=RIEN;
@@ -253,7 +257,6 @@ bool Interpreteur::rotationFace()
 		faireRotation=false;
 		couleurTrouveePred=RIEN;
 		// la rotation de 90 a ete faite
-		//BruitageOFF();
 	}
 	return true;
 }
@@ -270,7 +273,6 @@ bool Interpreteur::rotationCote()//vector<Centre> tabCentre, vector<Centre> tabN
 		faireRotation=false; 
 		couleurTrouveePred=RIEN;
 		// la rotation de 90 a ete faite
-		//BruitageOFF();
 	}
 	return true;
 }
@@ -288,7 +290,6 @@ bool Interpreteur::rotationUneFace()
 		faireRotation=false; 
 		couleurTrouveePred=RIEN;
 		// la rotation de 90 a ete faite
-		//BruitageOFF();
 	}
 	return true;
 }
@@ -313,16 +314,24 @@ void Interpreteur::launch(vector<Centre> tabCentre, vector<Centre> tabNewCentre)
 							rotationCote();
 					}  
 				break;}
-		case 1: {if(faireRotation){ rotation(tabCentre,tabNewCentre);} break;}
-		case 2: {if(faireRotation ){ rotation(tabCentre,tabNewCentre);} break;}
-		case 3:	{if(tabCentre[0].couleurFacile == ROUGE ) translation(0); else if(tabCentre[1].couleurFacile == ROUGE) translation(1); else if (tabCentre[2].couleurFacile == ROUGE ) translation(2);  break;}
-		//case 1 :{ if(tabCentre[0].couleurFacile == ROUGE ) translation(); break;} // N effectue la translation que si c'est un marqueur rouge
-		//case 2 : {rotation(tabCentre,tabNewCentre); break;}
-		//case 3 : {reinitialisation(tabCentre,tabNewCentre); break;}
+		case 1: {if(faireRotation){ rotation(tabCentre,tabNewCentre);} 
+				 break;}
+		case 2: {if(faireRotation ){ rotation(tabCentre,tabNewCentre);}
+				break;}
+		case 3:	{if(tabCentre[0].couleurFacile == ROUGE ) translation(0); else if(tabCentre[1].couleurFacile == ROUGE) translation(1); else if (tabCentre[2].couleurFacile == ROUGE ) translation(2);break;}
 			default :{ break;}
 		}
 
+		
+		
+		if(r->facesUniformes()==true && !r->aucuneChangement==true ){
+					Bruitage(sonVictoire);
+					r->aucuneChangement=true;
+		}
+
+
 	}
+	
 	
 
 	

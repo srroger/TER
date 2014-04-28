@@ -60,8 +60,8 @@ int Xmax=0,Xmin=1000,Ymax=0,Ymin=1000;
 
 
 FMOD_SYSTEM *systemSon;
-FMOD_SOUND *sonClic,*sonDepart,*sonTouche;
-FMOD_RESULT resultatSonClic,resultatSonTouche,resultatSonDepart;
+FMOD_SOUND *sonClic,*sonDepart,*sonTouche,*sonVictoire;
+FMOD_RESULT resultatSonClic,resultatSonTouche,resultatSonDepart,resultatSonVictoire;
 
 const char* texte="";string temps="0:0:0";
 int redo = 0; int numberBeforeRedo = 5; // Ces variables permette de ne pas refaire de binarisation enchainer
@@ -668,7 +668,6 @@ void display()
 	glTranslatef(0, 0, 0);
 	r.display();
 	
-
 	glFlush();
 	glutSwapBuffers();
 	
@@ -744,9 +743,12 @@ void idle()
 			texte="Cliquez sur le Bleu";
 			break;
 		case 3 : 
+			redo++;
+			if(redo>=10){
 			FMOD_System_PlaySound(systemSon, FMOD_CHANNEL_FREE, sonDepart, 0, NULL);//son
 			texte="C'est parti!!!!";
 			initialisation = false ;
+			redo=0;}
 		}
 		cvFlip(image,image,-1); 
 		AffichageFenetrePrincipale(texte,false);
@@ -792,35 +794,37 @@ void idle()
 
 		DrawCentre(tabnewCentre);
 			
-
+///////////////////////CALCUL CHRONOMETRE
 		ostringstream oss; 
 		string result="";
 		
 		if(chrono){
-			//chronoFin=clock();
 		// écrire un nombre dans le flux 
 			int h=0,min=0,sec=0;
 			time_t tempsactuel;
 
-			time(&tempsactuel);//(((double)(chronoFin-chronoDebut)/ (double) CLOCKS_PER_SEC));
+			time(&tempsactuel);
 			
 			sec=difftime(tempsactuel,tempsdepartchrono);
 
 			h=((int)sec)/(60*60);
 			min=((int)sec)/60;
 			sec=sec-h*60*60-min*60;
-			//cout<<"  "<<h<<" "<<min<<"   "<<sec<<endl;
 			
 			oss<<h<<":"<<min<<":"<<sec; 
 			 // récupérer une chaîne de caractères 
 			temps=oss.str();
+
+			if(r.aucuneChangement==true ){// arrete le chrono si il est resolue.
+				chrono=false;
+			}
 		}
 		
 		result ="temps: "+ temps ; 
+/////////FIN CALCUL CHRONOMETRE
 
 
-
-					//IplImage* flipped;
+		//IplImage* flipped;
 		cvFlip(image,image,-1); // Effet miroir sur l'image de la camera a decommenter quand le logiciel sera fini pour avoir un affichage ergonomique
 		AffichageFenetrePrincipale(r.ensembleCommandes.c_str(),false);
 		AffichageFenetrePrincipale(result.c_str(),true);
@@ -831,11 +835,15 @@ void idle()
 				//r.display_rotation();
 				//r.moveRX(0.5);
 
-		if(tabCentre.size()==tabnewCentre.size() && redo>=2){
+		if(tabCentre.size()==tabnewCentre.size() && redo>=3){
 			//DrawCentre(tabnewCentre);
 			//cout<<"ok c'est bon!!!!"<<endl;
 			interprete.launch(tabCentre,tabnewCentre);
 					//cout << "Apres launch" << endl;
+
+
+
+
 		}
 		//FIN INTERPRETATION
 
@@ -901,7 +909,12 @@ int main( int argc, char * argv[])
 			exit(EXIT_FAILURE);
 		}
 
-
+		resultatSonVictoire = FMOD_System_CreateSound(systemSon,"SF-crowd8.wav" , FMOD_CREATESAMPLE, 0, &sonVictoire);
+		if (resultatSonVictoire != FMOD_OK)
+		{
+			cout<<"Impossible de lire "<<"SF-crowd8.wav"<<"\n"<<endl;
+			exit(EXIT_FAILURE);
+		}
 
 
 	interprete = Interpreteur(&v,&r, hR, sR, hG, sG, hB, sB);
@@ -971,9 +984,11 @@ int main( int argc, char * argv[])
 	FMOD_Sound_Release(sonClic);
 	FMOD_Sound_Release(sonTouche);
 	FMOD_Sound_Release(sonDepart);
+	FMOD_Sound_Release(sonVictoire);
 	FMOD_System_Close(systemSon);
 	FMOD_System_Release(systemSon);
 
+	FMOD_Sound_Release(interprete.sonVictoire);
 	FMOD_Sound_Release(interprete.sonR);
 	FMOD_Sound_Release(interprete.sonRUF);
 	FMOD_System_Close(interprete.systemSon);

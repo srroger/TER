@@ -27,7 +27,7 @@ RubixCube::RubixCube(double length)
 	len=length;
 	plane.push_back(2);
 	axis.push_back(2);
-	solving,rotating=false;
+	solving,rotating=false,aucuneChangement=true;
 	theta=0;
 	dir=0;
 	int p=0,i,j,k;
@@ -353,8 +353,9 @@ void RubixCube::display()
 		//glRectd(-(len*32.5),-(len*32.5),(len*32.5),(len*32.5));
 		//glPopMatrix();
 	}
-	else
+	else{
 		display_rotation();
+	}
 }
 
 void idle();
@@ -411,6 +412,7 @@ void RubixCube::rotate_cube_plane()
 			exit(2);
 		}
 		set_centre();
+		aucuneChangement=false;
 
 		switch(axis.back())
 		{
@@ -554,6 +556,7 @@ void RubixCube::moveRX()
 	rotating=true;
 	rotate_cube_plane();
 	
+
 	
 	//rx = rx + val; if(rx > 360) rx= rx-360; if(rx < -360) rx= rx+360;
 }
@@ -795,4 +798,33 @@ void RubixCube::recalcAxis()
 
 	
 	*/
+}
+
+int RubixCube::getValCubepos(int i,int j,int k){
+	return cubepos[i][j][k];
+}
+
+Cube RubixCube::getValC(int i,int j,int k){
+	return c[cubepos[i][j][k]];
+}
+
+
+bool RubixCube::facesUniformes(){
+	RubixCube ruDeBase(len);
+	bool b = true;
+	int i,j,k;
+	for(i=0;i<3 && b;i++)
+		for(j=0;j<3 && b;j++)
+			for(k=0;k<3 && b;k++){
+				//cout<<i<<" "<<j<<"  "<<k<<"  "<<getValCubepos(i,j,k)<<"   "<<ruDeBase.getValCubepos(i,j,k)<<endl;
+				if(getValCubepos(i,j,k)==ruDeBase.getValCubepos(i,j,k))
+					for(int nbcolor=0;nbcolor<6;nbcolor++){
+						b=b && (getValC(i,j,k).color[nbcolor]==ruDeBase.getValC(i,j,k).color[nbcolor]);
+					}
+				else 
+					b=false;
+			}
+
+	//cout<<"b  "<<b<<endl;
+	return b;
 }
