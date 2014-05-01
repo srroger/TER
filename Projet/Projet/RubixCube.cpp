@@ -646,36 +646,42 @@ void RubixCube::melange()
 {	//moveRV(false);moveR(false);	moveRV(false);
 	//Scenarii 1 : 2xrouge, vert-rouge, bleu, vert-rouge
 	//On le fait dans le sens inverse afin que le cube soit fait à la fin de la liste des mouvements
-	//moveRV(false);
-	//moveB(false);
-	//moveRV(false);
-	//moveR(false);
-	//moveR(false);
+	
 
-	string filename = "Scenario.txt";
-	ifstream fichier(filename, ios::in);  // on ouvre en lecture
+	moveRV(false);
+	moveV(false);
+	moveRV(false);
+	moveR(false);
+	moveR(false);
+	moveRV(false);
+	moveB(false);
+	moveB(false);
+	moveRV(false);
+	moveV(false);
+	//string filename = "Scenario.txt";
+	//ifstream fichier(filename, ios::in);  // on ouvre en lecture
 
-	if(fichier)
-	{
-		string ligne;//string RV = "RV"; string R ="R" ; string V = "V"; string B = "B";
-		while(getline(fichier, ligne))  // tant que l'on peut mettre la ligne dans "contenu"
-		{
-			
-			if(ligne.compare("RV"))
-				moveRV(false);			
-			else if(ligne.compare("R"))
-				moveR(false);
-			else if(ligne.compare("V"))
-				moveV(false);						
-			else if(ligne.compare("B"))
-				moveB(false);
-			
-		}
-	}	
-        else
-                cerr << "Impossible d'ouvrir le fichier !" << endl;
- 
-	fichier.close();
+	//if(fichier)
+	//{
+	//	string ligne;//string RV = "RV"; string R ="R" ; string V = "V"; string B = "B";
+	//	while(getline(fichier, ligne))  // tant que l'on peut mettre la ligne dans "contenu"
+	//	{
+	//		
+	//		if(ligne.compare("RV"))
+	//			moveRV(false);			
+	//		else if(ligne.compare("R"))
+	//			moveR(false);
+	//		else if(ligne.compare("V"))
+	//			moveV(false);						
+	//		else if(ligne.compare("B"))
+	//			moveB(false);
+	//		
+	//	}
+	//}	
+ //       else
+ //               cerr << "Impossible d'ouvrir le fichier !" << endl;
+ //
+	//fichier.close();
 }
 
 void RubixCube::reinit()
